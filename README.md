@@ -1,8 +1,14 @@
 # HuntAI
 
+![Python](https://img.shields.io/badge/python-3.11%2B-blue)
+![Tests](https://img.shields.io/badge/tests-126%20passing-brightgreen)
+![Pipeline](https://img.shields.io/badge/pipeline-collect%20%E2%86%92%20filter%20%E2%86%92%20dedup%20%E2%86%92%20match%20%E2%86%92%20rank%20%E2%86%92%20export-informational)
+
 HuntAI is a terminal-based, configuration-driven job discovery system. It
-discovers software engineering jobs from job boards and ranks them according
-to a user's preferences, defined in a single YAML profile.
+collects software engineering jobs from job boards, filters and deduplicates
+them, uses an LLM to semantically match them against a user's profile, ranks
+the results, and exports them to Markdown/CSV/JSON — all driven by a single
+YAML profile, no code changes required to reconfigure.
 
 ## Architecture
 
@@ -13,29 +19,26 @@ config/profile.yaml
 LangGraph orchestrator
         |
         v
-   job collection
+   job collection        <- Greenhouse, Lever, Apify (LinkedIn)
         |
         v
-   normalization
+   hard filtering         <- excluded companies, role/title, location
         |
         v
-   hard filtering
+  deduplication           <- by normalized URL
         |
         v
-  deduplication
+LLM-based semantic matching  <- OpenAI, one call per job, structured output
         |
         v
-LLM-based semantic matching
-        |
-        v
-      ranking
+      ranking             <- sorted by match score
         |
         v
 Markdown / CSV / JSON export
 ```
 
 Each stage reads and writes a shared pipeline state. Deterministic stages
-(filtering, deduplication, ranking, export) never call the LLM. Only the
+(filtering, deduplication, ranking, export) never call an LLM. Only the
 matching stage calls OpenAI, and it does so with a structured (Pydantic)
 input and output, not free-form text.
 
@@ -47,82 +50,96 @@ input and output, not free-form text.
   the pipeline
 - OpenAI API / OpenAI Python SDK — the runtime LLM, used only for semantic
   job-to-profile matching
+- apify-client — runs the Apify LinkedIn job-search actor
 - PyYAML — loads the user profile from `config/profile.yaml`
-- python-dotenv — loads OpenAI credentials from `.env`
+- python-dotenv — loads API credentials from `.env`
 - pytest — tests
 
-## Role of each component
+## Job sources
 
-- **LangGraph**: defines the pipeline as an explicit graph
-  (`collect -> filter -> deduplicate -> match -> rank -> export`) so each
-  stage is a separate, replaceable node operating on shared state.
-- **Pydantic**: defines the `Job` model (a normalized job posting) and the
-  `JobMatch` model (a structured LLM matching result), so no unstructured
-  data flows through the pipeline.
-- **OpenAI**: used exclusively by the matching stage to semantically compare
-  a job description against the user's profile and produce a structured
-  `JobMatch`.
-- **Collectors**: `collectors/base.py` defines a common interface
-  (`collect() -> list[Job]`). `GreenhouseCollector` and `LeverCollector` will
-  each implement this interface and convert their source's raw API response
-  into `Job` objects, so the rest of the pipeline never needs to know which
-  source a job came from.
+| Source     | How it works                                                        |
+|------------|----------------------------------------------------------------------|
+| Greenhouse | Public job-board API, one or more company board tokens               |
+| Lever      | Public job-board API, one or more company slugs                      |
+| Apify      | Searches LinkedIn via the `jobsapi/linkedin-jobs-search-scraper` actor, using the roles/locations from your profile |
+
+Each source is independently enabled/disabled in `config/profile.yaml` under
+`sources:`.
+
+> **Note:** Apify is currently disabled by default in `config/profile.yaml`
+> because LinkedIn is blocking the actor's guest search entirely
+> (`NO_SEARCH_RESULTS` on every location) — an external service issue, not a
+> bug in this repo. Set `sources.apify.enabled: true` once that clears up, or
+> if you're using a different Apify actor/proxy configuration.
 
 ## Project structure
 
 ```
-huntAI/
-├── config/profile.yaml       # user preferences (roles, locations, skills, etc.)
-├── models/job.py              # Job and JobMatch Pydantic models
-├── collectors/                # base interface + Greenhouse/Lever placeholders
-├── pipeline/                  # LangGraph state, graph, and stage placeholders
-├── exporters/                 # Markdown/CSV/JSON export placeholders
-├── tests/test_basic.py        # tests for the Pydantic models
-├── output/                    # generated export files (gitignored)
-├── main.py                    # minimal entry point
+HuntAI/
+├── config/profile.yaml    # user preferences: roles, locations, skills, excluded companies, sources
+├── models/job.py          # Job and JobMatch Pydantic models
+├── collectors/            # Greenhouse, Lever, and Apify collectors (BaseCollector interface)
+├── pipeline/               # LangGraph state, graph, filters, dedup, matcher, ranker
+├── exporters/              # Markdown/CSV/JSON export
+├── tests/                  # pytest suite (126 tests, all mocked — no real network/LLM calls)
+├── output/                 # generated export files (gitignored)
+├── main.py                 # entry point: loads profile, runs the graph
 ├── requirements.txt
-├── .env                       # OpenAI credentials (not committed)
+├── .env.example             # template for required environment variables
 └── .gitignore
 ```
 
-## Current implementation status
-
-**Implemented:**
-- `Job` and `JobMatch` Pydantic models
-- `BaseCollector` interface
-- `GreenhouseCollector` / `LeverCollector` placeholder classes (raise
-  `NotImplementedError`)
-- Example `config/profile.yaml`
-- `PipelineState` (TypedDict) for LangGraph
-- LangGraph skeleton with all six nodes wired in sequence, each currently a
-  pass-through
-- Placeholder functions in `pipeline/filters.py`, `pipeline/dedup.py`,
-  `pipeline/matcher.py`, `pipeline/ranker.py`
-- Placeholder functions in `exporters/markdown.py`, `exporters/csv.py`,
-  `exporters/json.py`
-- `main.py` that loads the profile and runs the empty graph end-to-end
-- Basic tests for the Pydantic models
-
-**NOT implemented (future stages):**
-- Real Greenhouse/Lever API requests
-- Hard filtering logic
-- Deduplication logic
-- OpenAI-based semantic matching
-- Ranking logic
-- Markdown/CSV/JSON export logic
-- Any network calls or LLM calls
-
 ## Setup
 
-```
-pip install -r requirements.txt
-```
+1. **Clone and install dependencies**
 
-Fill in `OPENAI_API_KEY` and `OPENAI_MODEL` in `.env` before later stages
-that require OpenAI access. No key is needed for the current foundation.
+   ```bash
+   git clone https://github.com/diamond2233/HuntAI.git
+   cd HuntAI
+   python -m venv venv
+   source venv/bin/activate   # Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+
+2. **Configure credentials**
+
+   Copy `.env.example` to `.env` and fill in your keys:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   ```
+   OPENAI_API_KEY=your-key-here
+   OPENAI_MODEL=gpt-4o-mini        # or whichever model you have access to
+   APIFY_API_TOKEN=your-token-here # only needed if sources.apify.enabled is true
+   ```
+
+   `.env` is gitignored — never commit real keys.
+
+3. **Configure your job search**
+
+   Edit `config/profile.yaml`: your target roles, locations, experience
+   range, skills, companies to exclude, and which sources
+   (`greenhouse` / `lever` / `apify`) to enable and how to configure them
+   (board tokens, company slugs).
+
+4. **Run it**
+
+   ```bash
+   python main.py
+   ```
+
+   This runs the full pipeline and writes `output/jobs.md`, `output/jobs.csv`,
+   and `output/jobs.json` — your ranked job matches.
 
 ## Running tests
 
-```
+The entire test suite runs offline against mocks — no real HTTP, Apify, or
+OpenAI calls are made.
+
+```bash
 pytest
+# or, if `pytest` isn't on PATH:
+python -m pytest -v
 ```
