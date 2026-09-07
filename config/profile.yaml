@@ -1,0 +1,78 @@
+# HuntAI user profile
+# Edit this file to change job preferences. No Python code changes needed.
+
+roles:
+  - Software Engineer
+  - Backend Engineer
+  - SDE
+  - Data Scientist
+  - Data Analyst
+  - AI Engineer
+  - GenAI Engineer
+
+locations:
+  - Bangalore
+  - Hyderabad
+  - Pune
+  - Noida
+  - Gurgaon
+  - Remote
+
+experience:
+  min_years: 0
+  max_years: 2
+
+skills:
+  - Java
+  - Python
+  - SQL
+  - REST API
+  - Git
+  - OOP
+  - Data Structures
+  - Algorithms
+  - DBMS
+  - Agentic AI
+  - Generative AI
+  - RAG
+  - MCP
+  - Golang
+  - Operating Systems
+
+excluded_companies:
+  - TCS
+  - Infosys
+  - Wipro
+
+# Job sources to collect from.
+# Board tokens / slugs identify each company's public careers board.
+sources:
+  greenhouse:
+    enabled: true
+    boards:
+      - token: razorpaysoftwareprivatelimited
+        company: Razorpay
+      - token: groww
+        company: Groww
+
+  lever:
+    enabled: true
+    companies:
+      - slug: cred
+        company: CRED
+      - slug: meesho
+        company: Meesho
+      - slug: paytm
+        company: Paytm
+
+  # Searches LinkedIn (via Apify) using the roles/locations configured
+  # above, rather than a fixed list of companies. See collectors/apify.py.
+  # max_items is capped at 50 by the jobsapi/linkedin-jobs-search-scraper
+  # actor itself (verified via a live "maxItems must be <= 50" API error).
+  # Temporarily disabled: LinkedIn is currently blocking this actor's guest
+  # search entirely (NO_SEARCH_RESULTS on every configured location) -- an
+  # external service issue, not a code defect. Re-enable once resolved.
+  apify:
+    enabled: false
+    max_items: 50
+    max_pages: 2

@@ -1,0 +1,7 @@
+langgraph
+pydantic
+openai
+pyyaml
+python-dotenv
+pytest
+apify-client
