@@ -87,11 +87,15 @@ def _collect(profile: dict) -> tuple[list[Job], dict[str, int]]:
     return jobs, jobs_per_source
 
 
-def _match_with_usage_tracking(jobs: list[Job], profile: dict) -> tuple[list, list[dict]]:
+def _match_with_usage_tracking(
+    jobs: list[Job], profile: dict, max_workers: int = 8
+) -> tuple[list, list[dict], dict]:
     """Call the real match_jobs() unmodified, recording each call's token usage.
 
     The OpenAI client is wrapped (not changed) so usage can be read off each
     real response -- pipeline/matcher.py itself is untouched by this script.
+    Returns (matched_jobs, usage_log, stats) where stats is match_jobs()'s
+    own stats dict (currently just {"skipped_jobs": N}).
     """
     real_client = OpenAI()
     usage_log: list[dict] = []
@@ -111,10 +115,11 @@ def _match_with_usage_tracking(jobs: list[Job], profile: dict) -> tuple[list, li
 
     real_client.chat.completions.parse = instrumented_parse
 
+    stats: dict = {}
     with patch("pipeline.matcher.OpenAI", return_value=real_client):
-        matched_jobs = match_jobs(jobs, profile)
+        matched_jobs = match_jobs(jobs, profile, max_workers=max_workers, stats=stats)
 
-    return matched_jobs, usage_log
+    return matched_jobs, usage_log, stats
 
 
 # Substrings used to flag a rejected title as "plausibly a real tech role"
@@ -197,6 +202,141 @@ def _estimate_cost_usd(model: str, prompt_tokens: int, completion_tokens: int) -
     )
 
 
+def _median(values: list[float]) -> float:
+    ordered = sorted(values)
+    mid = len(ordered) // 2
+    if len(ordered) % 2 == 1:
+        return ordered[mid]
+    return (ordered[mid - 1] + ordered[mid]) / 2
+
+
+def run_fair_comparison(workers: int, runs: int, max_jobs: int, output_name: str) -> None:
+    """Collects and filters ONCE, then re-runs only the matching stage `runs`
+    times at a fixed `workers` count, on the same (capped, stable-order) job
+    list -- so repeated invocations with different `workers` values are
+    comparing apples to apples, not different random jobs.
+
+    Writes/merges into results/<output_name> under "by_workers"[str(workers)],
+    so running this once with workers=1 and again with workers=8 (both with
+    the same --runs/--max-jobs) builds up one file with both results side by
+    side, and the second invocation prints the full comparison table.
+    """
+    profile = _load_profile()
+
+    print("Collecting and filtering once (shared across all worker counts)...")
+    jobs, jobs_per_source = _collect(profile)
+    filtered_jobs = apply_filters(jobs, profile)
+    filter_rejections, _diagnostics = _diagnose_filter_rejections(jobs, profile)
+    deduplicated_jobs = deduplicate(filtered_jobs)
+
+    jobs_after_filter = len(deduplicated_jobs)
+    print(f"Jobs collected: {len(jobs)}  |  Jobs after filter+dedup: {jobs_after_filter}")
+
+    output_path = PROJECT_ROOT / "results" / output_name
+    if jobs_after_filter < 30:
+        print(
+            f"\nOnly {jobs_after_filter} jobs survived the filter (< 30) -- "
+            "stopping before any OpenAI calls, as instructed."
+        )
+        results = {
+            "jobs_collected_per_source": jobs_per_source,
+            "jobs_collected_total": len(jobs),
+            "jobs_after_filter": jobs_after_filter,
+            "filter_rejections": filter_rejections,
+            "stopped_before_openai": True,
+            "reason": f"Only {jobs_after_filter} jobs survived the filter (minimum 30 required).",
+        }
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(results, f, indent=2)
+        print(json.dumps(results, indent=2))
+        return
+
+    capped_jobs = deduplicated_jobs[:max_jobs]
+    print(f"Matching the same {len(capped_jobs)} jobs (capped at --max-jobs {max_jobs}), "
+          f"{runs} runs at --workers {workers}...")
+
+    model = os.getenv("OPENAI_MODEL")
+    per_run_seconds = []
+    per_run_prompt_tokens = []
+    per_run_completion_tokens = []
+    per_run_total_tokens = []
+    per_run_cost = []
+    per_run_openai_calls = []
+    per_run_skipped = []
+
+    for run_number in range(1, runs + 1):
+        start = time.perf_counter()
+        _matched_jobs, usage_log, stats = _match_with_usage_tracking(
+            capped_jobs, profile, max_workers=workers
+        )
+        elapsed = time.perf_counter() - start
+
+        prompt_tokens = sum(u["prompt_tokens"] for u in usage_log)
+        completion_tokens = sum(u["completion_tokens"] for u in usage_log)
+        total_tokens = sum(u["total_tokens"] for u in usage_log)
+        cost = _estimate_cost_usd(model, prompt_tokens, completion_tokens)
+
+        print(
+            f"  run {run_number}/{runs}: {elapsed:.2f}s, {len(usage_log)} calls, "
+            f"{stats.get('skipped_jobs', 0)} skipped"
+        )
+
+        per_run_seconds.append(elapsed)
+        per_run_prompt_tokens.append(prompt_tokens)
+        per_run_completion_tokens.append(completion_tokens)
+        per_run_total_tokens.append(total_tokens)
+        per_run_cost.append(cost if cost is not None else 0.0)
+        per_run_openai_calls.append(len(usage_log))
+        per_run_skipped.append(stats.get("skipped_jobs", 0))
+
+    worker_result = {
+        "runs": runs,
+        "jobs_matched": len(capped_jobs),
+        "median_match_seconds": round(_median(per_run_seconds), 3),
+        "median_openai_calls": _median(per_run_openai_calls),
+        "median_skipped_jobs": _median(per_run_skipped),
+        "median_prompt_tokens": _median(per_run_prompt_tokens),
+        "median_completion_tokens": _median(per_run_completion_tokens),
+        "median_total_tokens": _median(per_run_total_tokens),
+        "median_estimated_cost_usd": round(_median(per_run_cost), 6) if model == PRICED_MODEL else None,
+        "all_run_seconds": [round(s, 3) for s in per_run_seconds],
+    }
+
+    if output_path.exists():
+        with open(output_path, encoding="utf-8") as f:
+            results = json.load(f)
+    else:
+        results = {
+            "jobs_collected_per_source": jobs_per_source,
+            "jobs_collected_total": len(jobs),
+            "jobs_after_filter": jobs_after_filter,
+            "filter_rejections": filter_rejections,
+            "max_jobs_used_for_matching": max_jobs,
+            "openai_model": model,
+            "by_workers": {},
+        }
+
+    results["by_workers"][str(workers)] = worker_result
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2)
+
+    print(f"\nSaved to {output_path}")
+    print(json.dumps(worker_result, indent=2))
+
+    if len(results["by_workers"]) > 1:
+        print("\nComparison table (median of each worker count's runs):")
+        print(f"  {'workers':<10}{'match_seconds':<16}{'openai_calls':<14}{'tokens':<10}{'cost_usd':<10}")
+        for worker_count, data in sorted(results["by_workers"].items(), key=lambda kv: int(kv[0])):
+            print(
+                f"  {worker_count:<10}{data['median_match_seconds']:<16}"
+                f"{data['median_openai_calls']:<14}{data['median_total_tokens']:<10}"
+                f"{data['median_estimated_cost_usd']}"
+            )
+
+
 def run_benchmark() -> tuple[dict, dict]:
     """Runs the pipeline once and returns (results, rejection_diagnostics).
 
@@ -222,7 +362,7 @@ def run_benchmark() -> tuple[dict, dict]:
     stage_seconds["dedup"] = time.perf_counter() - start
 
     start = time.perf_counter()
-    matched_jobs, usage_log = _match_with_usage_tracking(deduplicated_jobs, profile)
+    matched_jobs, usage_log, _match_stats = _match_with_usage_tracking(deduplicated_jobs, profile)
     stage_seconds["match"] = time.perf_counter() - start
 
     start = time.perf_counter()
@@ -272,7 +412,37 @@ def main() -> None:
         default="baseline.json",
         help="Filename to save results under in results/ (default: baseline.json)",
     )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=None,
+        help=(
+            "Run the fair matching-stage comparison mode instead of a full "
+            "pipeline run: collect+filter once, then repeat ONLY matching "
+            "--runs times at this many max_workers, on the same --max-jobs "
+            "jobs. Run this twice (e.g. --workers 1, then --workers 8) with "
+            "the same output_name to build a side-by-side comparison."
+        ),
+    )
+    parser.add_argument(
+        "--runs",
+        type=int,
+        default=3,
+        help="Comparison mode only: how many times to repeat the matching stage (default: 3).",
+    )
+    parser.add_argument(
+        "--max-jobs",
+        type=int,
+        default=60,
+        help="Comparison mode only: cap on jobs matched, taken in stable order after dedup (default: 60).",
+    )
     args = parser.parse_args()
+
+    if args.workers is not None:
+        run_fair_comparison(
+            workers=args.workers, runs=args.runs, max_jobs=args.max_jobs, output_name=args.output_name
+        )
+        return
 
     results, diagnostics = run_benchmark()
 
