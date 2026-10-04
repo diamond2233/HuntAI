@@ -27,11 +27,21 @@ during that wait. Threads let us have many of those waits happening at once
 instead of one after another. In our real benchmark, with 5 jobs, matching
 time dropped from 15.08s to 5.56s.
 
-**How to test it by hand:** run `python scripts/benchmark.py` twice -- once
-on the `main` branch, once on `h1-reliability` -- and compare the `"match"`
-time in the printed JSON. You can also open `pipeline/matcher.py` and change
-`DEFAULT_MAX_WORKERS = 8` to `DEFAULT_MAX_WORKERS = 1`, re-run, and watch
-matching time go back up to roughly what it was before.
+**How to test it by hand:** `scripts/benchmark.py` has a `--workers` flag
+exactly for this. Run the same jobs twice, once sequentially and once in
+parallel:
+
+```
+python scripts/benchmark.py h1b_benchmark.json --workers 1 --runs 3
+python scripts/benchmark.py h1b_benchmark.json --workers 8 --runs 3
+```
+
+Both commands collect and filter the jobs once, then repeat *only* the
+matching stage 3 times at that worker count and save the median to
+`results/h1b_benchmark.json`. Running both (same output filename) builds up
+one file with both results side by side, and the second command prints a
+comparison table. Our real run: 107.3s median at `--workers 1` vs 15.9s at
+`--workers 8` -- about 6.7x faster, on the exact same 60 jobs both times.
 
 ## Change 2: Retry (try again on temporary errors)
 
@@ -120,6 +130,83 @@ still comes back, with `stats["skipped_jobs"] == 1`.
   `max_workers` and `stats` are optional, so existing callers that don't
   pass them behave the same as before (just faster, and now resilient to
   single-job failures).
+
+## H1b: Why only 5 jobs survived the filter, and what we actually found
+
+After H1 made matching faster, the next question was: why does the
+benchmark only have 5 jobs to match in the first place, out of 265
+collected? The first guess was "the location filter is too strict -- it
+probably doesn't know 'Bengaluru' and 'Bangalore' are the same city."
+
+**What we actually found, in order:**
+
+1. We checked *why* each job was rejected (`scripts/benchmark.py` adds a
+   `filter_rejections` count to its output, broken down by reason). The
+   first real answer: 258 of 265 jobs were rejected for **role**, only 2 for
+   location. The original guess was wrong -- the 5 original job boards
+   (Razorpay, Groww, CRED, Meesho, Paytm) just don't post many engineering
+   roles; most of their listings are sales, collections, product, and ops.
+   The role filter itself was fine.
+2. So instead of "fixing" a filter that wasn't broken, we added more real
+   company boards (`scripts/check_boards.py` probes Greenhouse's and
+   Lever's public APIs for a list of companies and reports what it finds --
+   see below) to get enough real engineering jobs to benchmark with.
+3. *Once* boards from global companies (Databricks, Okta, Twilio, Coinbase,
+   GitLab, Airbnb) were added, the location guess turned out to be right
+   after all, just not yet -- "Bengaluru, India" became the single biggest
+   rejected-location reason (124 jobs), because those companies spell the
+   city "Bengaluru", not "Bangalore". *That's* when we added the alias.
+4. A second, bigger problem showed up at the same time: 215 of 250 jobs
+   that passed the filter were things like "Remote - California" or
+   "Remote, USA" -- not India at all. They were only getting through
+   because the location filter just checked whether the word "remote"
+   appeared *anywhere* in the location text, and "Remote - California"
+   contains "remote". We fixed `matches_location()` so "Remote" only counts
+   if the location doesn't clearly name somewhere else (it checks for
+   "india", or accepts a bare "Remote" with nothing else attached).
+
+The lesson: the filter funnel having few survivors can have more than one
+cause, and they can be hiding behind each other -- the alias problem was
+real, but it was invisible until there were enough non-Bangalore,
+non-India-labeled jobs in the data for it to show up at all.
+
+**How to see the rejection reasons yourself:**
+
+```
+python scripts/benchmark.py my_run.json
+```
+
+The printed JSON includes `"filter_rejections": {"role": N, "location": M}`,
+and the console output below it lists the most common rejected titles and
+rejected location strings with counts. If you ever suspect the filter is
+too strict (or too loose) again, this is the first thing to run -- don't
+guess, look at the real counts.
+
+**How to check a new company and add it to the profile:**
+
+```
+python scripts/check_boards.py
+```
+
+This tries several slug guesses (plus a few known aliases for rebrands) for
+a list of companies against both Greenhouse's and Lever's public APIs, and
+prints what it finds -- including an India-specific job/engineering-job
+count, and whether the board's own name actually matches the company you
+were guessing (marked VERIFIED/UNVERIFIED, since a slug like "meta" could
+belong to an unrelated company). Only add a hit to `config/profile.yaml` if
+it's VERIFIED *and* has real India-based engineering jobs -- check
+`results/check_boards_output.txt` for the full real output and reasoning
+from the last run.
+
+**Why we compare 1 worker vs 8 workers:**
+
+H1's concurrency change (above) is only worth having if it actually makes
+matching faster on *real* data, not just in a quick mocked test. Comparing
+`--workers 1` against `--workers 8` on the exact same jobs (same filter
+run, same 60 jobs, just matched twice) isolates the one thing that changed
+-- how many OpenAI calls run at once -- from everything else (which jobs,
+how many, network conditions). That's what makes "107.3s vs 15.9s" a fair
+comparison instead of two numbers from two different situations.
 
 ## Quick check: 3 questions
 

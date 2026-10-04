@@ -72,6 +72,10 @@ Each source is independently enabled/disabled in `config/profile.yaml` under
 > bug in this repo. Set `sources.apify.enabled: true` once that clears up, or
 > if you're using a different Apify actor/proxy configuration.
 
+## Limitations
+
+- Sources: public Greenhouse and Lever boards only.
+
 ## Project structure
 
 ```
