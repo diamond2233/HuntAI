@@ -10,15 +10,19 @@ from unittest.mock import MagicMock, patch
 
 import httpx
 import pytest
-from openai import APITimeoutError, OpenAIError
+from openai import APITimeoutError, OpenAIError, RateLimitError
 from pydantic import ValidationError
 
 from models.job import Job
 from pipeline.matcher import (
     DEFAULT_MAX_WORKERS,
     MAX_DESCRIPTION_CHARS,
+    MAX_RATE_LIMIT_RETRY_ATTEMPTS,
     MAX_RETRY_ATTEMPTS,
+    RATE_LIMIT_WAIT_CAP_SECONDS,
     _MatchResult,
+    _RateLimitState,
+    _rate_limit_wait_seconds,
     match_jobs,
 )
 
@@ -327,6 +331,13 @@ def _timeout_error() -> APITimeoutError:
     return APITimeoutError(request=request)
 
 
+def _rate_limit_error(message: str = "Rate limit reached.", retry_after_header: str | None = None) -> RateLimitError:
+    headers = {"Retry-After": retry_after_header} if retry_after_header is not None else {}
+    request = httpx.Request("POST", "https://api.openai.com/v1/chat/completions")
+    response = httpx.Response(status_code=429, headers=headers, request=request)
+    return RateLimitError(message, response=response, body=None)
+
+
 def test_retries_on_temporary_error_then_succeeds():
     result = _MatchResult(score=70, rationale="Ok after retry.")
     client = MagicMock()
@@ -361,6 +372,106 @@ def test_retry_backoff_is_exponential():
 
     slept_for = [call.args[0] for call in mock_sleep.call_args_list]
     assert slept_for == [1.0, 2.0, 4.0]
+
+
+# --- rate-limit handling: Retry-After, message parsing, cap, fallback -----
+
+def test_wait_time_is_taken_from_retry_after_header(monkeypatch):
+    monkeypatch.setattr("pipeline.matcher.random.uniform", lambda a, b: 0.0)
+    exc = _rate_limit_error(message="no hint here", retry_after_header="2.5")
+
+    wait_seconds = _rate_limit_wait_seconds(exc, retry_number=0)
+
+    assert wait_seconds == 2.5
+
+
+def test_wait_time_is_parsed_from_message_when_no_header():
+    exc = _rate_limit_error(message="Please try again in 245ms.")
+
+    wait_seconds = _rate_limit_wait_seconds(exc, retry_number=0)
+
+    assert 0.245 <= wait_seconds <= 0.245 + 1.0  # + jitter (0-1s)
+
+
+def test_wait_time_is_parsed_from_message_in_seconds():
+    exc = _rate_limit_error(message="Please try again in 3.2s.")
+
+    wait_seconds = _rate_limit_wait_seconds(exc, retry_number=0)
+
+    assert 3.2 <= wait_seconds <= 3.2 + 1.0
+
+
+def test_wait_time_falls_back_to_exponential_backoff_when_no_hint(monkeypatch):
+    monkeypatch.setattr("pipeline.matcher.random.uniform", lambda a, b: 0.0)
+    exc = _rate_limit_error(message="rate limited, no timing info")
+
+    assert _rate_limit_wait_seconds(exc, retry_number=0) == 1.0
+    assert _rate_limit_wait_seconds(exc, retry_number=1) == 2.0
+    assert _rate_limit_wait_seconds(exc, retry_number=2) == 4.0
+
+
+def test_wait_time_is_capped_at_60_seconds(monkeypatch):
+    monkeypatch.setattr("pipeline.matcher.random.uniform", lambda a, b: 1.0)
+    exc = _rate_limit_error(retry_after_header="1000")
+
+    wait_seconds = _rate_limit_wait_seconds(exc, retry_number=0)
+
+    assert wait_seconds == RATE_LIMIT_WAIT_CAP_SECONDS
+
+
+def test_shared_cooldown_makes_a_shorter_wait_defer_to_a_longer_one(monkeypatch):
+    fake_now = [100.0]
+    monkeypatch.setattr("pipeline.matcher.time.monotonic", lambda: fake_now[0])
+    sleeps = []
+    monkeypatch.setattr("pipeline.matcher.time.sleep", lambda seconds: sleeps.append(seconds))
+
+    state = _RateLimitState()
+
+    # One worker hits a 429 with a long wait.
+    state.extend(5.0)
+    # A second worker hits a 429 too, but with a much shorter wait -- the
+    # shared resume time must not shrink because of it.
+    state.extend(0.5)
+
+    state.wait()
+
+    assert sleeps == [5.0]
+    assert state.hits == 2
+
+
+def test_rate_limit_hits_and_wait_seconds_are_recorded_in_stats(monkeypatch):
+    monkeypatch.setattr("pipeline.matcher.random.uniform", lambda a, b: 0.0)
+    result = _MatchResult(score=60, rationale="Ok.")
+    client = MagicMock()
+    client.chat.completions.parse.side_effect = [
+        _rate_limit_error(retry_after_header="0.01"),
+        _fake_completion(parsed=result),
+    ]
+    stats = {}
+
+    with patch("pipeline.matcher.OpenAI", return_value=client):
+        match_jobs([_job()], _profile(), stats=stats)
+
+    assert stats["rate_limit_hits"] == 1
+    assert stats["rate_limit_wait_seconds"] > 0
+
+
+def test_rate_limit_allows_up_to_six_retries_then_skips(monkeypatch):
+    monkeypatch.setattr("pipeline.matcher.random.uniform", lambda a, b: 0.0)
+    client = MagicMock()
+    client.chat.completions.parse.side_effect = [
+        _rate_limit_error(retry_after_header="0.01")
+    ] * (MAX_RATE_LIMIT_RETRY_ATTEMPTS + 1)
+    stats = {}
+
+    with patch("pipeline.matcher.OpenAI", return_value=client):
+        matches = match_jobs([_job()], _profile(), stats=stats)
+
+    assert matches == []
+    assert stats["skipped_jobs"] == 1
+    assert stats["skipped_details"][0]["attempts"] == MAX_RATE_LIMIT_RETRY_ATTEMPTS + 1
+    assert stats["skipped_details"][0]["error_type"] == "RateLimitError"
+    assert client.chat.completions.parse.call_count == MAX_RATE_LIMIT_RETRY_ATTEMPTS + 1
 
 
 def test_job_still_failing_after_all_retries_is_skipped_and_counted():

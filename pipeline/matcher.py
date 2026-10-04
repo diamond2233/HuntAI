@@ -9,13 +9,22 @@ model's output before it can enter the pipeline state.
 
 Jobs are matched concurrently with a thread pool (OpenAI calls are I/O-bound,
 so threads -- not processes -- are enough to overlap them). Temporary errors
-(rate limits, timeouts, connection errors, 5xx) are retried with exponential
-backoff; a job that still fails after retries is skipped rather than failing
-the whole run.
+are retried rather than failing the whole run:
+
+- Rate limits (429) wait for however long the server actually asked for
+  (shared across all workers -- see _RateLimitState), up to 6 retries.
+- Timeouts, connection errors, and 5xx keep the original, simpler
+  exponential backoff, up to 3 retries.
+
+A job that still fails after retries is skipped rather than failing the
+whole run.
 """
 
 import logging
 import os
+import random
+import re
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 
@@ -45,12 +54,23 @@ MAX_DESCRIPTION_CHARS = 12000
 # overlap many calls without needing multiprocessing.
 DEFAULT_MAX_WORKERS = 8
 
-# Errors worth retrying -- ones likely to go away on their own if we wait and
-# try again. Anything else (bad request, auth failure, refusal, invalid
-# structured output, ...) is not retried, since trying again won't help.
-RETRYABLE_ERRORS = (RateLimitError, APITimeoutError, InternalServerError, APIConnectionError)
+# Timeouts, connection errors, and 5xx: unchanged from before -- a fixed
+# exponential backoff, since there's no server-provided wait time to use
+# for these.
+OTHER_RETRYABLE_ERRORS = (APITimeoutError, InternalServerError, APIConnectionError)
 MAX_RETRY_ATTEMPTS = 3
 RETRY_BACKOFF_SECONDS = 1.0
+
+# Rate limits (429) get their own, longer retry budget, since a per-minute
+# token limit can easily outlast the backoff above.
+MAX_RATE_LIMIT_RETRY_ATTEMPTS = 6
+RATE_LIMIT_WAIT_CAP_SECONDS = 60.0
+RATE_LIMIT_JITTER_SECONDS = 1.0
+RATE_LIMIT_FALLBACK_BACKOFF_SECONDS = 1.0
+
+# Matches the "try again in X s" / "try again in X ms" text OpenAI's own
+# rate-limit error message includes, e.g. "Please try again in 245ms."
+RATE_LIMIT_MESSAGE_PATTERN = re.compile(r"try again in\s+([\d.]+)\s*(ms|s)\b", re.IGNORECASE)
 
 SYSTEM_PROMPT = """You are a job-profile matching evaluator for a job search assistant.
 
@@ -151,16 +171,104 @@ def _build_user_message(job: Job, profile: dict) -> str:
     )
 
 
-def _call_with_retries(client: OpenAI, model: str, job: Job, profile: dict):
-    """Call the OpenAI API, retrying temporary errors with exponential backoff.
+class _RateLimitState:
+    """Shared across every worker in one match_jobs() call.
 
-    Tries once, then retries up to MAX_RETRY_ATTEMPTS more times (so up to
-    MAX_RETRY_ATTEMPTS + 1 attempts total) -- but only for RETRYABLE_ERRORS.
+    When any worker hits a 429, it's a sign the whole account just went
+    over its per-minute token budget -- not that this one job's request was
+    special. So instead of each worker independently retrying (and likely
+    hitting the same still-active limit again), they all pause until one
+    shared "resume_at" timestamp has passed. Protected by a plain lock;
+    nothing fancier than that.
+    """
+
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._resume_at = 0.0
+        self.hits = 0
+        self.total_wait_seconds = 0.0
+
+    def extend(self, wait_seconds: float) -> None:
+        """Record a 429 and push the shared resume time forward if this
+        wait would end later than whatever's currently set."""
+        with self._lock:
+            self.hits += 1
+            candidate = time.monotonic() + wait_seconds
+            if candidate > self._resume_at:
+                self._resume_at = candidate
+
+    def wait(self) -> None:
+        """Sleep until the shared resume time has passed, and record how
+        long this call actually waited."""
+        with self._lock:
+            resume_at = self._resume_at
+        remaining = resume_at - time.monotonic()
+        if remaining > 0:
+            time.sleep(remaining)
+            with self._lock:
+                self.total_wait_seconds += remaining
+
+
+def _rate_limit_wait_seconds_from_header(exc: RateLimitError) -> float | None:
+    """The server's own Retry-After header, if it sent one."""
+    headers = getattr(getattr(exc, "response", None), "headers", None)
+    if headers is None:
+        return None
+    value = headers.get("Retry-After")
+    if value is None:
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _rate_limit_wait_seconds_from_message(exc: RateLimitError) -> float | None:
+    """OpenAI's rate-limit errors describe the wait in the message text
+    itself (e.g. "Please try again in 245ms."), even without a header."""
+    match = RATE_LIMIT_MESSAGE_PATTERN.search(str(exc))
+    if not match:
+        return None
+    amount = float(match.group(1))
+    unit = match.group(2).lower()
+    return amount / 1000 if unit == "ms" else amount
+
+
+def _rate_limit_wait_seconds(exc: RateLimitError, retry_number: int) -> float:
+    """How long to wait before retrying a rate-limited call.
+
+    Prefers the server's own guidance over guessing: the Retry-After
+    header, then the "try again in Xs/Xms" text in the error message, and
+    only falls back to exponential backoff if neither is present. A little
+    random jitter is added so several workers that all hit the limit at
+    once don't all retry at the exact same instant, and the total is
+    capped so a bad parse/huge header value can't block things for ages.
+    """
+    wait_seconds = _rate_limit_wait_seconds_from_header(exc)
+    if wait_seconds is None:
+        wait_seconds = _rate_limit_wait_seconds_from_message(exc)
+    if wait_seconds is None:
+        wait_seconds = RATE_LIMIT_FALLBACK_BACKOFF_SECONDS * (2**retry_number)
+
+    jitter = random.uniform(0, RATE_LIMIT_JITTER_SECONDS)
+    return min(wait_seconds + jitter, RATE_LIMIT_WAIT_CAP_SECONDS)
+
+
+def _call_with_retries(
+    client: OpenAI, model: str, job: Job, profile: dict, rate_limit_state: _RateLimitState
+):
+    """Call the OpenAI API, retrying temporary errors.
+
+    Rate limits (429) and other temporary errors (timeout/connection/5xx)
+    are retried with different strategies -- see the module docstring.
     Any other error is raised immediately, since retrying it wouldn't help.
     """
     user_message = _build_user_message(job, profile)
 
-    for retry_number in range(MAX_RETRY_ATTEMPTS + 1):
+    rate_limit_retries = 0
+    other_retries = 0
+
+    while True:
         try:
             return client.chat.completions.parse(
                 model=model,
@@ -170,16 +278,37 @@ def _call_with_retries(client: OpenAI, model: str, job: Job, profile: dict):
                 ],
                 response_format=_MatchResult,
             )
-        except RETRYABLE_ERRORS as exc:
-            attempts = retry_number + 1
-            if retry_number == MAX_RETRY_ATTEMPTS:
+        except RateLimitError as exc:
+            attempts = 1 + rate_limit_retries + other_retries
+            if rate_limit_retries >= MAX_RATE_LIMIT_RETRY_ATTEMPTS:
+                raise MatchFailure(
+                    f"OpenAI matching call failed for job '{job.title}' at "
+                    f"'{job.company}' after {attempts} attempts (rate limited): {exc}",
+                    error_type=type(exc).__name__,
+                    attempts=attempts,
+                ) from exc
+            wait_seconds = _rate_limit_wait_seconds(exc, rate_limit_retries)
+            rate_limit_state.extend(wait_seconds)
+            logger.warning(
+                "Rate limited for job '%s' at '%s' (retry %d/%d) -- waiting (shared cooldown, up to %.1fs).",
+                job.title,
+                job.company,
+                rate_limit_retries + 1,
+                MAX_RATE_LIMIT_RETRY_ATTEMPTS,
+                wait_seconds,
+            )
+            rate_limit_state.wait()
+            rate_limit_retries += 1
+        except OTHER_RETRYABLE_ERRORS as exc:
+            attempts = 1 + rate_limit_retries + other_retries
+            if other_retries >= MAX_RETRY_ATTEMPTS:
                 raise MatchFailure(
                     f"OpenAI matching call failed for job '{job.title}' at "
                     f"'{job.company}' after {attempts} attempts: {exc}",
                     error_type=type(exc).__name__,
                     attempts=attempts,
                 ) from exc
-            backoff_seconds = RETRY_BACKOFF_SECONDS * (2**retry_number)
+            backoff_seconds = RETRY_BACKOFF_SECONDS * (2**other_retries)
             logger.warning(
                 "OpenAI call failed for job '%s' at '%s' (attempt %d/%d, %s) -- retrying in %.1fs.",
                 job.title,
@@ -190,16 +319,20 @@ def _call_with_retries(client: OpenAI, model: str, job: Job, profile: dict):
                 backoff_seconds,
             )
             time.sleep(backoff_seconds)
+            other_retries += 1
         except (OpenAIError, ValidationError) as exc:
+            attempts = 1 + rate_limit_retries + other_retries
             raise MatchFailure(
                 f"OpenAI matching call failed for job '{job.title}' at '{job.company}': {exc}",
                 error_type=type(exc).__name__,
-                attempts=retry_number + 1,
+                attempts=attempts,
             ) from exc
 
 
-def _match_job(client: OpenAI, model: str, job: Job, profile: dict) -> JobMatch:
-    completion = _call_with_retries(client, model, job, profile)
+def _match_job(
+    client: OpenAI, model: str, job: Job, profile: dict, rate_limit_state: _RateLimitState
+) -> JobMatch:
+    completion = _call_with_retries(client, model, job, profile, rate_limit_state)
     message = completion.choices[0].message
 
     if message.refusal:
@@ -242,12 +375,16 @@ def match_jobs(
     aborting the whole run. Pass a `stats` dict to find out how many jobs
     were skipped (stats["skipped_jobs"]) and exactly why (stats
     ["skipped_details"], one entry per skipped job: id, title, company,
-    error_type, error_message, attempts).
+    error_type, error_message, attempts), plus how much rate limiting
+    actually cost this run (stats["rate_limit_hits"], stats
+    ["rate_limit_wait_seconds"]).
     """
     if not jobs:
         if stats is not None:
             stats["skipped_jobs"] = 0
             stats["skipped_details"] = []
+            stats["rate_limit_hits"] = 0
+            stats["rate_limit_wait_seconds"] = 0.0
         return []
 
     model = os.getenv("OPENAI_MODEL")
@@ -257,14 +394,16 @@ def match_jobs(
     # The SDK itself retries 429/5xx/timeouts up to 2 times by default. Our
     # own retry loop in _call_with_retries() already handles that, so we
     # disable the SDK's retries here -- otherwise one failing call could be
-    # attempted up to (our 4 attempts) x (the SDK's 3 attempts) = 12 times.
+    # attempted up to (our attempts) x (the SDK's 3 attempts) more times
+    # than intended.
     client = OpenAI(max_retries=0)
     results: list[JobMatch | None] = [None] * len(jobs)
     skipped_details: list[dict] = []
+    rate_limit_state = _RateLimitState()
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_index = {
-            executor.submit(_match_job, client, model, job, profile): index
+            executor.submit(_match_job, client, model, job, profile, rate_limit_state): index
             for index, job in enumerate(jobs)
         }
         for future, index in future_to_index.items():
@@ -292,5 +431,7 @@ def match_jobs(
     if stats is not None:
         stats["skipped_jobs"] = len(skipped_details)
         stats["skipped_details"] = skipped_details
+        stats["rate_limit_hits"] = rate_limit_state.hits
+        stats["rate_limit_wait_seconds"] = round(rate_limit_state.total_wait_seconds, 3)
 
     return [match for match in results if match is not None]
