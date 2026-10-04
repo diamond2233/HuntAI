@@ -1,0 +1,669 @@
+OpenAI call failed for job 'Senior Software Engineer (Institutional, Settlements & Transfers)' at 'Coinbase' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Software Engineer, Simple Trade Experience' at 'Coinbase' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Software Engineer, Native Mobile' at 'Coinbase' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Software Engineer (Platform - Access & Authorization)' at 'Coinbase' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Staff Software Engineer - Blockchain Platform' at 'Coinbase' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Software Engineer (Institutional, Settlements & Transfers)' at 'Coinbase' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Senior Software Engineer (Platform - Access & Authorization)' at 'Coinbase' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Senior Staff Software Engineer, Institutional Exchange' at 'Coinbase' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Software Engineer, Native Mobile' at 'Coinbase' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Senior Staff Software Engineer - Blockchain Platform' at 'Coinbase' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Senior Staff Software Engineer, Payments' at 'Coinbase' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Staff Software Engineer, Platform - IAM' at 'Coinbase' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Software Engineer (Platform - Access & Authorization)' at 'Coinbase' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Senior Software Engineer, Native Mobile' at 'Coinbase' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Senior Staff Software Engineer - Blockchain Platform' at 'Coinbase' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Software Engineer, CDP - Payment Acceptance ' at 'Coinbase' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Software Engineer, Enterprise Apps' at 'Coinbase' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+Skipping job 'Senior Software Engineer, Native Mobile' at 'Coinbase' -- failed after retries: OpenAI matching call failed for job 'Senior Software Engineer, Native Mobile' at 'Coinbase' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 198572, Requested 2245. Please try again in 245ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}
+OpenAI call failed for job 'Software Engineer, CDP - Payment Acceptance ' at 'Coinbase' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+Skipping job 'Senior Software Engineer (Platform - Access & Authorization)' at 'Coinbase' -- failed after retries: OpenAI matching call failed for job 'Senior Software Engineer (Platform - Access & Authorization)' at 'Coinbase' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 198526, Requested 2221. Please try again in 224ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}
+OpenAI call failed for job 'Software Engineer, Security Platform' at 'Coinbase' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Software Engineer, Enterprise Apps' at 'Coinbase' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job ' Staff Infrastructure Engineer, Trading ' at 'Coinbase' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Staff Machine Learning Engineer(Platform - Identity)' at 'Coinbase' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Software Engineer, Security Platform' at 'Coinbase' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job ' Staff Infrastructure Engineer, Trading ' at 'Coinbase' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Staff Machine Learning Engineer(Platform - Identity)' at 'Coinbase' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Staff Software Engineer, Developer Infrastructure (Test Infrastructure)' at 'Coinbase' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Staff Software Engineer, Enterprise Apps' at 'Coinbase' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job ' Staff Infrastructure Engineer, Trading ' at 'Coinbase' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Staff Machine Learning Engineer(Platform - Identity)' at 'Coinbase' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Staff Software Engineer, Developer Infrastructure (Test Infrastructure)' at 'Coinbase' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Staff Software Engineer, Mobile QA' at 'Coinbase' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Staff Software Engineer, Native Mobile' at 'Coinbase' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Staff Software Engineer, Developer Infrastructure (Test Infrastructure)' at 'Coinbase' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Staff Software Engineer, Mobile QA' at 'Coinbase' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Staff Software Engineer, Native Mobile' at 'Coinbase' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Backend Engineer, AI Engineering: Duo Chat' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Backend Engineer, Create: Repository Management' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Backend Engineer, Create: Source Code Experience (Ruby)   ' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Staff Software Engineer, Native Mobile' at 'Coinbase' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Backend Engineer (Ruby), AI Engineering: Agent Foundations' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Backend Engineer, AI Engineering: Duo Chat' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Customer Success Engineer, LATAM (Spanish, Portugese) ' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Distinguished Engineer, Core DevOps' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Forward Deployed Engineer, AI and Agentic SDLC' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Forward Deployed Engineer - EMEA' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Fullstack Engineer (TypeScript), AI Engineering: Duo Client SDK' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Backend Engineer, AI Engineering: Duo Chat' at 'GitLab' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Distinguished Engineer, Core DevOps' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Forward Deployed Engineer, AI and Agentic SDLC' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Forward Deployed Engineer - EMEA' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Intermediate Backend Engineer, India' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Intermediate Security Engineer, Security Incident Response Team (SIRT)' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Distinguished Engineer, Core DevOps' at 'GitLab' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+Skipping job 'Backend Engineer, AI Engineering: Duo Chat' at 'GitLab' -- failed after retries: OpenAI matching call failed for job 'Backend Engineer, AI Engineering: Duo Chat' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 198764, Requested 3331. Please try again in 628ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}
+OpenAI call failed for job 'Forward Deployed Engineer - EMEA' at 'GitLab' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Professional Services Engineer - West ' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Principal Site Reliability Engineer, Platform Engineering: Dedicated' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior AI Engineer' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Assigned Support Engineer (AMER)' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+Skipping job 'Distinguished Engineer, Core DevOps' at 'GitLab' -- failed after retries: OpenAI matching call failed for job 'Distinguished Engineer, Core DevOps' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 198307, Requested 3569. Please try again in 562ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}
+OpenAI call failed for job 'Principal Site Reliability Engineer, Platform Engineering: Dedicated' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+Skipping job 'Forward Deployed Engineer - EMEA' at 'GitLab' -- failed after retries: OpenAI matching call failed for job 'Forward Deployed Engineer - EMEA' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 198474, Requested 3579. Please try again in 615ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}
+OpenAI call failed for job 'Professional Services Engineer - West ' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Senior AI Engineer' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Senior Backend Engineer, Architecture Engineering: Nonlinear Productivity' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Assigned Support Engineer (AMER)' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Senior Backend Engineer (Go), Tenant Scale: Gitaly ' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Principal Site Reliability Engineer, Platform Engineering: Dedicated' at 'GitLab' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Professional Services Engineer - West ' at 'GitLab' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Senior AI Engineer' at 'GitLab' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Senior Backend Engineer, Platform Readiness' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Assigned Support Engineer (AMER)' at 'GitLab' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Senior Backend Engineer (Go), Tenant Scale: Gitaly ' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Senior Backend Engineer, Platform Readiness' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+Skipping job 'Principal Site Reliability Engineer, Platform Engineering: Dedicated' at 'GitLab' -- failed after retries: OpenAI matching call failed for job 'Principal Site Reliability Engineer, Platform Engineering: Dedicated' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 197730, Requested 3422. Please try again in 345ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}
+Skipping job 'Professional Services Engineer - West ' at 'GitLab' -- failed after retries: OpenAI matching call failed for job 'Professional Services Engineer - West ' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 197663, Requested 3557. Please try again in 366ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}
+Skipping job 'Senior AI Engineer' at 'GitLab' -- failed after retries: OpenAI matching call failed for job 'Senior AI Engineer' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 197460, Requested 3552. Please try again in 303ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}
+OpenAI call failed for job 'Senior Frontend Engineer (Vue), Create:  Repository Management ' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+Skipping job 'Senior Assigned Support Engineer (AMER)' at 'GitLab' -- failed after retries: OpenAI matching call failed for job 'Senior Assigned Support Engineer (AMER)' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 198575, Requested 3568. Please try again in 642ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}
+OpenAI call failed for job 'Senior Release Engineer' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Security Engineer, Incident Response Team (Australia)' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Backend Engineer, Platform Readiness' at 'GitLab' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Senior Security Compliance Engineer, Public Sector' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Professional Services Engineer- PubSec - DC Metro' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Security Risk Engineer' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Site Reliability Engineer - Monitoring and Anomaly Detection (Monetization)  ' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Release Engineer' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Senior Security Compliance Engineer, Public Sector' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Senior Professional Services Engineer- PubSec - DC Metro' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Senior Support Engineer' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Security Risk Engineer' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Senior Release Engineer' at 'GitLab' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Senior Security Compliance Engineer, Public Sector' at 'GitLab' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Senior Professional Services Engineer- PubSec - DC Metro' at 'GitLab' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Site Reliability Engineer, Infrastructure Platforms — AMER (Intermediate to Senior Staff)' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Staff Backend Engineer, Architecture Engineering: Nonlinear Productivity' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Security Risk Engineer' at 'GitLab' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Staff Backend Engineer, Core DevOps' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Staff Backend Engineer, Architecture Engineering: Nonlinear Productivity' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Staff Backend Engineer, Developer Experience' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+Skipping job 'Senior Professional Services Engineer- PubSec - DC Metro' at 'GitLab' -- failed after retries: OpenAI matching call failed for job 'Senior Professional Services Engineer- PubSec - DC Metro' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 198437, Requested 3566. Please try again in 600ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}
+Skipping job 'Senior Security Compliance Engineer, Public Sector' at 'GitLab' -- failed after retries: OpenAI matching call failed for job 'Senior Security Compliance Engineer, Public Sector' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 198518, Requested 3544. Please try again in 618ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}
+OpenAI call failed for job 'Staff Backend Engineer, India' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Staff Backend Engineer (Ruby), AI Engineering: DAP Repository Flows' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Staff Corporate Security Engineer ' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Staff Engineer, People Technology' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+Skipping job 'Senior Security Risk Engineer' at 'GitLab' -- failed after retries: OpenAI matching call failed for job 'Senior Security Risk Engineer' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 197684, Requested 3563. Please try again in 374ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}
+OpenAI call failed for job 'Staff Backend Engineer, Architecture Engineering: Nonlinear Productivity' at 'GitLab' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Staff Backend Engineer (Ruby), AI Engineering: DAP Repository Flows' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Staff Forward Deployed Engineer' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Staff Corporate Security Engineer ' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Staff Engineer, People Technology' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Staff Forward Deployed Engineer' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Staff Site Reliability Engineer - Monitoring and Anomaly Detection (Monetization)   ' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Staff Software Engineer - NLP' at 'GitLab' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Staff Corporate Security Engineer ' at 'GitLab' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Staff Engineer, People Technology' at 'GitLab' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Data Scientist - Algorithms, Community Support' at 'Airbnb' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Staff Software Engineer - NLP' at 'GitLab' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Staff Forward Deployed Engineer' at 'GitLab' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Senior Data Scientist - Payments (Inference)' at 'Airbnb' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Machine Learning Engineer, Assistance Engineering' at 'Airbnb' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job ' Senior Machine Learning Engineer, Payments' at 'Airbnb' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Staff Software Engineer - NLP' at 'GitLab' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Senior Data Scientist - Payments (Inference)' at 'Airbnb' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+Skipping job 'Staff Engineer, People Technology' at 'GitLab' -- failed after retries: OpenAI matching call failed for job 'Staff Engineer, People Technology' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 197649, Requested 3563. Please try again in 363ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}
+Skipping job 'Staff Forward Deployed Engineer' at 'GitLab' -- failed after retries: OpenAI matching call failed for job 'Staff Forward Deployed Engineer' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 197807, Requested 3558. Please try again in 409ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}
+OpenAI call failed for job 'Senior Machine Learning Engineer, Assistance Engineering' at 'Airbnb' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Senior Staff Machine Learning Engineer, Post Training' at 'Airbnb' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Staff Machine Learning Engineer, Growth Platform Engineering' at 'Airbnb' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Data Scientist - Payments (Inference)' at 'Airbnb' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Senior Staff Software Engineer, Marketing Technology' at 'Airbnb' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+Skipping job 'Staff Software Engineer - NLP' at 'GitLab' -- failed after retries: OpenAI matching call failed for job 'Staff Software Engineer - NLP' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 197538, Requested 3561. Please try again in 329ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}
+OpenAI call failed for job 'Senior Staff Machine Learning Engineer, Post Training' at 'Airbnb' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Senior Staff Machine Learning Engineer, Growth Platform Engineering' at 'Airbnb' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Senior Staff Software Engineer, Tech Foundations' at 'Airbnb' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+OpenAI call failed for job 'Senior Staff Software Engineer, Tech Foundations' at 'Airbnb' (attempt 2/4, RateLimitError) -- retrying in 2.0s.
+OpenAI call failed for job 'Senior Staff Machine Learning Engineer, Post Training' at 'Airbnb' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+OpenAI call failed for job 'Software Engineer, Passport & Commerce, iOS' at 'Airbnb' (attempt 1/4, RateLimitError) -- retrying in 1.0s.
+Skipping job 'Senior Data Scientist - Payments (Inference)' at 'Airbnb' -- failed after retries: OpenAI matching call failed for job 'Senior Data Scientist - Payments (Inference)' at 'Airbnb' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 198306, Requested 3274. Please try again in 474ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}
+OpenAI call failed for job 'Senior Staff Machine Learning Engineer, Growth Platform Engineering' at 'Airbnb' (attempt 3/4, RateLimitError) -- retrying in 4.0s.
+{
+  "jobs_collected_per_source": {
+    "greenhouse": 2002,
+    "lever": 237
+  },
+  "jobs_collected_total": 2239,
+  "jobs_after_filter": 250,
+  "filter_rejections": {
+    "role": 1486,
+    "location": 503
+  },
+  "jobs_after_dedup": 250,
+  "openai_calls": 234,
+  "openai_model": "gpt-4.1-mini",
+  "openai_tokens": {
+    "prompt_tokens": 599151,
+    "completion_tokens": 42702,
+    "total_tokens": 641853
+  },
+  "estimated_cost_usd": 0.307984,
+  "cost_pricing_note": "Priced using gpt-4.1-mini rates ($0.4/1M input, $1.6/1M output tokens), verified at platform.openai.com/docs/pricing on 2026-10-04.",
+  "final_ranked_jobs": 234,
+  "stage_seconds": {
+    "collect": 58.939,
+    "filter": 0.044,
+    "dedup": 0.001,
+    "match": 137.41,
+    "rank": 0.0,
+    "total": 196.44
+  }
+}
+
+Saved to C:\Users\BIT\Desktop\HuntAI\results\step3_diagnosis.json
+
+Top 25 location strings among jobs rejected for location:
+   124  Bengaluru, India
+    49  San Francisco, California
+    36  Toronto, Ontario, Canada
+    32  Mountain View, California
+    18  United States
+    18  Bellevue, Washington
+    16  Mountain View, California; San Francisco, California
+    13  New York City, New York
+    12  London, United Kingdom
+    11  Amsterdam, Netherlands
+    11  Belgrade, Serbia
+    11  Seattle, Washington
+     6  Tokyo, Japan
+     6  Chicago, Illinois
+     6  San Francisco, CA
+     5  Vancouver, Canada
+     5  Washington, DC
+     4  Bellevue, Washington; Seattle, Washington
+     4  Aarhus, Denmark
+     4  Singapore
+     4  Austin, Texas
+     4  Dallas, Texas
+     4  Boston, Massachusetts
+     4  Philadelphia, Pennsylvania
+     4  Virginia
+
+Top 40 most common rejected-for-role titles:
+    17  Solutions Architect
+    15  Sr. Solutions Architect
+    10  Delivery Solutions Architect
+    10  Lakebase Sales Specialist
+     7  Senior Solutions Architect
+     7  Strategic Account Executive
+     6  Solutions Architect - Communications, Media, Entertainment and Games
+     5  Manager, Forward Deployed Engineering
+     5  Senior Solutions Architect (EDW Enterprise Data Warehouse Migrations)
+     5  Collection Manager - TL - Lending Collections (EM Recovery)
+     4  Deployment Strategist
+     4  Specialist Solutions Architect - AI/ML
+     4  Sr. Manager, Field Engineering
+     4  Staff Product Manager
+     4  Senior Engineering Manager V&V Media
+     4  Concierge Specialist IV
+     4  KAM - Manager - Paytm Ads
+     3  Executive Assistant
+     3  Lakebase Specialist Sales
+     3  Sr. Manager, AI Forward Deployed Engineering
+     3  Strategic Enterprise Account Executive, Life Sciences
+     3  Sales Development Representative
+     3  Technical Account Manager 3
+     3  Specialist, Market Operations
+     3  Market Associate
+     3  Area Collection Manager - Manager - Lending Collections (Frontend)
+     2  Engineering Manager
+     2  Technical Account Manager
+     2  Business Development Representative
+     2  Delivery Solutions Architect - Digital Native Business
+     2  Director, Field Engineering
+     2  Director, Lakebase Sales Specialists
+     2  Emerging Enterprise Account Executive
+     2  Engineering Manager - Backend
+     2  Enterprise Account Executive - China
+     2  Forward Deployed Engineering - Senior Architect
+     2  Manager, Delivery Solutions Architects
+     2  Manager, Developer Relations - Open Source
+     2  Manager, Field Engineering - Global Telecommunications 
+     2  Manager, Field Engineering - Strategic Digital Native Business
+
+Jobs per company (collected / rejected for role / kept):
+  Airbnb                         collected= 154  rejected_for_role= 106  kept=  23
+  CRED                           collected=   8  rejected_for_role=   8  kept=   0
+  Coinbase                       collected= 229  rejected_for_role= 138  kept=  85
+  Databricks                     collected= 887  rejected_for_role= 564  kept=  16
+  GitLab                         collected= 211  rejected_for_role= 135  kept=  76
+  Groww                          collected=   7  rejected_for_role=   7  kept=   0
+  Meesho                         collected=  56  rejected_for_role=  52  kept=   4
+  Okta                           collected= 368  rejected_for_role= 205  kept=   0
+  Paytm                          collected= 173  rejected_for_role= 170  kept=   1
+  Razorpay                       collected=  21  rejected_for_role=  21  kept=   0
+  Twilio                         collected= 125  rejected_for_role=  80  kept=  45
+
+Rejected-for-role titles that look like tech roles (contain engineer/developer/scientist/analyst/sde/technical/software/data/ml/ai/backend/frontend/platform/devops/security/qa) -- 468 total:
+     6  Solutions Architect - Communications, Media, Entertainment and Games
+     5  Manager, Forward Deployed Engineering
+     5  Senior Solutions Architect (EDW Enterprise Data Warehouse Migrations)
+     4  Specialist Solutions Architect - AI/ML
+     4  Sr. Manager, Field Engineering
+     4  Senior Engineering Manager V&V Media
+     3  Sr. Manager, AI Forward Deployed Engineering
+     3  Sales Development Representative
+     3  Technical Account Manager 3
+     3  Area Collection Manager - Manager - Lending Collections (Frontend)
+     2  Engineering Manager
+     2  Technical Account Manager
+     2  Business Development Representative
+     2  Director, Field Engineering
+     2  Engineering Manager - Backend
+     2  Forward Deployed Engineering - Senior Architect
+     2  Manager, Developer Relations - Open Source
+     2  Manager, Field Engineering - Global Telecommunications 
+     2  Manager, Field Engineering - Strategic Digital Native Business
+     2  Senior Manager, Infrastructure Data Science
+     2  Sr. Product Manager, Compute Platform
+     2  Sr. Product Manager, Databricks AI
+     2  Sr. Product Manager, Databricks Free Edition
+     2  Sr. Product Manager, Databricks Repos
+     2  Sr. Product Manager, Data Governance
+     2  Sr. Staff Technical Program Manager - Reliability
+     2  Sr Staff Technical Program Manager- Security
+     2  Staff Product Manager, Security
+     2  Staff Technical Program Manager- Security
+     2  Manager, Engineering
+     2  Technical Support Expert 2
+     2  Credit Risk Analyst
+     2  Risk & Monitoring Analyst III
+     2  Risk & Monitoring Analyst IV
+     2  Business Development Representative 
+     2  Principal Technical Program Manager
+     2  Complex Claims Manager
+     2  Staff Platform Manager, Payments Regional Growth
+     2  Cluster Head  ( Security & Investigation)
+     1  DevOps Enginer
+     1  Product Manager II - AI 
+     1  Senior Territory Manager, Bank Retail & Direct Enterprise Sales
+     1  Technical Account Manager 
+     1  AI Transformation Leader
+     1  Business Development Representative (French-speaking)
+     1  Customer Enablement Architect (Capability Engineering & AI Adoption)
+     1  	Delivery Solutions Architect - Communications, Media, Entertainment & Games
+     1  Delivery Solutions Architect - Retail
+     1  Director, Agent & AI Search
+     1  Director, Americas Field Marketing at Databricks
+     1  Director, Field Engineering (CPG & Retail)
+     1  Director, Field Engineering Emerging Enterprises & Startups 
+     1  Director, Field Engineering - Financial Services 
+     1  Director, Marketing Strategy and AI Transformation
+     1  Director of Engineering
+     1  Director of Engineering (Data Infrastructure)
+     1  Director, Paid Media
+     1  Director, Product Marketing, AI 
+     1  Engineering Manager, App Traffic
+     1  Engineering Manager - Compute Infra
+     1  Engineering Manager - Core Experiences 
+     1  Engineering Manager, CustomerLake Profile Agents
+     1  Engineering Manager - Databricks SQL Control Plane
+     1  Engineering Manager - Data Visualization Platform
+     1  Engineering Manager - Identity and Access Management (IAM)
+     1  Engineering Manager (Ingestion)
+     1  Engineering Manager, Serverless Compute Platform
+     1  Engineering Manager - Streaming
+     1  Engineering Manager - UI Platform
+     1  Field Engineering Enablement Leader
+     1  Field Engineering Manager, Specialist Solutions Architects
+     1  Field Engineering Manager, Specialist Solutions Architects - Nordics
+     1  Field Technical Program/Project Manager
+     1  Finance Data and AI Lead
+     1  Head of Corporate Engineering
+     1  Infrastructure & Platform Specialist Solutions Architect (SSA) 
+     1  Lakebase Associate Director - Retail
+     1  Lead Engagement Manager, FDE - Communications, Media, Entertainment & Gaming
+     1  Leader of GTM Technical & Product Execution Excellence
+     1  Lead Field Technical Program Manager, FDE - Retail, Consumer Goods, Travel, Transportation & Hospitality
+     1  Lead Solutions Architect - Generative AI (EMEA Emerging DNB)
+     1  Manager, Engineering - AI/BI
+     1  Manager, Field Engineering
+     1  Manager, Field Engineering - Financial Services Industry
+     1  Manager, Field Engineering France
+     1  Manager, Field Engineering France  - Specialist Solutions Architects
+     1  Manager, Field Engineering Italy
+     1  Manager, Field Engineering - MFG
+     1  Manager, Field Engineering - Polish speaker
+     1  Manager, Forward Deployed Engineering - CMEG
+     1  Manager, Technical Solutions Spark
+     1  Named Core Account Executive - Retail
+     1  Named Core Account Executive - Thailand
+     1  P2P Data & Automation Lead
+     1  PhD GenAI Research Scientist Intern
+     1  Pre-sales Engineering Manager (Retail & CPG)
+     1  Principal AI Research Scientist, Research Director - AI Scaling
+     1  Principal Demand Generation Manager, Campaign Development
+     1  Principal Research Scientist – Scaling
+     1  Program Analyst, Legal Ops
+     1  Recruiter, GTM Field Engineering
+     1  Retail & Consumer Goods APAC Leader 
+     1   Sales Dev AI Program Manager
+     1  SAP Technical Lead
+     1  Senior Customer Enablement AI Programs Manager
+     1  Senior Engineering Manager - Backend 
+     1  Senior Engineering Manager - Enzyme
+     1  Senior Engineering Manager for Self-Serve (Learning)
+     1  Senior Engineering Manager for Workspace Platform
+     1  Senior Field Technical Program Manager, FDE
+     1  Senior Finance Specialist (Data & AI)
+     1  Senior Manager, AI Forward Deployed Engineering - London
+     1  Senior Manager, Finance Data and AI
+     1  Senior Manager, Forward Deployed Engineering
+     1  Senior Manager - Technical Solutions (Big Data / AI)
+     1  Senior Payroll Analyst
+     1  Senior Solutions Architect (Data & AI) - Leeds based
+     1  Senior Specialist Solutions Architect (AI/ML)
+     1  Software Engineering Intern (2027 Start) - Aarhus
+     1  Software Engineering Intern (2027 Start) - Amsterdam
+     1  Software Engineering Intern (2027 Start) - Belgrade
+     1  Software Engineering Intern (2027 Start) - Berlin
+     1  Software Engineering Intern (2027 Start) - London
+     1  Software Engineering Intern (2027 Start) - Winter
+     1  Solutions Architect - Communications, Media, Entertainment & Gaming 
+     1  Solutions Architect (Media, Entertainment and Agencies)
+     1  Solutions Architect (Portuguese Speaking) Madrid Spain
+     1  Solutions Architect (Pre-sales) - Kansai Region
+     1  Solutions Architect - Retail, Travel & Hospitality 
+     1  Specialist Solutions Architect - AWS Infrastructure & Platform
+     1  Specialist Solutions Architect - Azure Infrastructure & Platform
+     1  Specialist Solutions Architect - Data Engineering & Warehousing (Financial Services) 
+     1  Specialist Solutions Architect - Data Warehousing
+     1  Specialist Solutions Architect - Security
+     1  Specialist Solutions Architect (Security)
+     1  Sr. Deployment Strategist, FDE - Communications, Media, Entertainment & Gaming
+     1  Sr. Director, Enterprise - Retail Vertical - Strategic Accounts 
+     1  Sr. Engagement Manager, Forward Deployed Engineering - Public Sector
+     1  Sr. Engineering Manager - Agentic Service Platform 
+     1  Sr. Engineering Manager, AI Runtime
+     1  Sr. Engineering Manager - Customer Experience Intelligence (CXI)
+     1  Sr. Engineering Manager - Notebook Dataplane
+     1  Sr. Engineering Manager - Pipelines Engine
+     1  Sr. Field Technical Program Manager, FDE
+     1  Sr. Field Technical Program Manager, FDE - DNB
+     1  Sr. Field Technical Program Manager, FDE - Public Sector
+     1  Sr. Industry Marketing Manager, Manufacturing & Supply Chain
+     1  Sr. Learning Platform Specialist
+     1  Sr. Manager, AI Forward Deployed Engineering (AI FDE)
+     1  Sr. Manager -  BFSI, Field Engineering
+     1  Sr. Manager – Data & AI Support Engineering
+     1  Sr. Manager, Engineering
+     1  Sr. Manager, Engineering - AI/BI
+     1  Sr. Manager, Engineering  Configuration Platform Team
+     1  Sr. Manager, Engineering - Search
+     1  Sr. Manager, Field Engineering - Digital Native Business
+     1  Sr. Manager, Field Engineering - Healthcare and Life Sciences (Healthcare Providers)
+     1  Sr. Manager, Field Engineering - Public Sector (Intel, Navy, Air Force)
+     1  Sr. Manager, Field Engineering Qatar&Africa
+     1  Sr. Manager, Field Engineering - Sports
+     1  Sr. Manager, Sales Development
+     1  Sr. Manager, Security — Continuous Monitoring v 2.0 
+     1  Sr. Product Designer, AI/BI
+     1  Sr. Product Manager, Data Engineering
+     1  Sr. Product Manager - Technical
+     1  Sr. Recruiter, Field Engineering & FDE
+     1  Sr. Recruiter, GTM – Field Engineering (Contract)
+     1  Sr. Solutions Architect Madrid Spain
+     1  Sr. Solutions Architect - Retail, Travel & Hospitality
+     1  Sr. Solutions Architect - Retail, Travel & Hospitality 
+     1  Sr. Staff, Technical Program Management
+     1  Sr. Technical Program Manager
+     1  Sr Technical Solutions (Backline)
+     1  Sr Technical Solutions Engineering
+     1  Sr. Technology Partner Director - AI Code-Gen & Apps
+     1  Staff Product Designer, AI Products 
+     1  Staff Product Manager, Agentic AI Applications
+     1  Staff Product Manager - Technical
+     1  Staff Technical Program Manager - Cleared/Security 
+     1  Staff Technical Program Manager- Platform Features
+     1  Staff Technical Solution Engineering
+     1  Strategic Account Executive - Retail vertical 
+     1  Strategy & Execution Manager — Retail
+     1  Tax Data & Technology Manager
+     1  Technical Program Manager
+     1  Technical Program Manager, FDE
+     1  AI Trainer
+     1  Business Development Representative, Bellevue
+     1  Business Development Representative - Dutch
+     1  Business Development Representative, East
+     1  Business Development Representative, West
+     1  Corporate Counsel, U.S. Federal,  Defense and National Security Compliance
+     1  Director, Engineering - Okta Integration Network 
+     1  Director, Sales Development, Japan
+     1  Director, Site Reliability Engineering
+     1  Engineering Manager - Access Essentials - Core Product
+     1  Engineering Manager, Governance Intelligence
+     1  Engineering Manager, Okta Access Gateway
+     1  Engineering Manager, Okta Identity Governance
+     1  Enterprise Account Executive, Mumbai
+     1  Field GTM Lead, Sales Acceleration, Okta Secures AI
+     1  Global Paid Search Marketing Manager
+     1  Manager, Engineering, SecureAI
+     1  Manager, Sales Development, Strategic
+     1  Manager, Site Reliability Engineer
+     1  Manager- Site Reliability Engineering
+     1  Manager, Site Reliability Engineering
+     1  Manager, Site Reliability Engineering (Auth0)
+     1  Marketing Automation Manager, AI Journey
+     1  Principal, Global Security Operations Center
+     1  Principal Product Analyst - Workday Delivery Lead
+     1  Principal Product Designer – UI Platform
+     1  Principal Product Manager, Platform Strategy & Infrastructure (Auth0)
+     1  Sales Development Representative, Bellevue
+     1  Sales Development Representative, Central
+     1  Sales Development Representative, Latin America
+     1  Sales Development Representative - UK&I
+     1  Senior Analyst, People Analytics
+     1  Senior Application Development Analyst
+     1  Senior Director of Paid Media
+     1  Senior Engineering Manager, SDET  - Okta Identity Governance (OIG)
+     1  Senior Engineering Technical Program Manager - Jira Administration
+     1  Senior Financial Analyst, FP&A
+     1  Senior Financial Analyst, G&A 
+     1  Senior Manager, Site Reliability Engineering (Federal)
+     1  Senior Manager, Site Reliability Engineering -  Infrastructure Platform
+     1  Senior Manager, Solutions Engineering, Okta
+     1  Senior Manager, Solutions Engineering, SLED
+     1  Senior Manager, Technical Architecture
+     1  Senior Payroll Analyst 
+     1  Senior Product Analyst - Finance Technology
+     1  Senior Product Designer - Okta for AI Agents
+     1  Senior Product Manager, Auth0 AI and Identity Products (Auth0)
+     1  Senior Product Manager - Developer Productivity
+     1  Senior Product Manager, Product Platform
+     1  Senior Product Manager - UI Platform
+     1  Senior Recruiter, Engineering - Contractor
+     1  Senior Technical Account Manager - Key Accounts - Auth0
+     1  Senior Technical Program Manager (Auth0)
+     1  Senior Technical Writer
+     1  Software Architect, Java Backend
+     1  Software Architect, Lifecycle Management
+     1  Software Backend Architect
+     1  Software Engineering Manager
+     1  Software Engineering Manager - Core & Resilience Engineering
+     1   Sr. Product Manager - Agentic Security
+     1  Sr. Product Manager - Agentic Security
+     1  Sr. Technical Account Manager, Okta Strategic Customers
+     1  Staff Product Analyst, Finance Technologies (Order to Cash)
+     1  Staff Product Analyst, Finance Technologies (Source to Pay)
+     1  Staff Product Analyst (Workday Payroll, Absence & Time Tracking)
+     1  Staff Product Marketing Manager, Security 
+     1  Staff SRE for K8s Platform Team (AWS, Kubernetes, Platform Creation, Helm, Karpenter, Istio)
+     1  Staff Technical Writer
+     1  Technical Account Manager Analyst (New Grad)
+     1  Technical Account Manager - Auth0
+     1  Technical Account Manager (Canada - Enterprise - Auth0)
+     1  Technical Account Manager, Okta (West Coast)
+     1  Technical Account Manager (Strategic Accounts)
+     1  Technical Architect
+     1  Technical Architect, Auth0
+     1  Business Intelligence Analyst 2
+     1  Deal Desk Senior Analyst
+     1  Director, Global Campaigns
+     1  Global Security Operations Center Operator
+     1  Senior Engineering Manager (L5)
+     1  Senior Engineering Manager, Voice and Video
+     1  Senior International Payroll Analyst
+     1  Senior Marketing Analyst
+     1  Senior People Technology Analyst - Talent Acquisition
+     1  Senior Tax and Compliance Analyst (Payroll)
+     1  Software Architect (L6)
+     1  Sr AI Architect - Conversational AI
+     1  Staff, Technical Account Manager
+     1  Technical Account Manager 4
+     1  Analyst, Privacy
+     1  Communications Manager, Policy & Public Affairs
+     1  Complaints Analyst II
+     1  Complaints Analyst III
+     1  Corporate Development Manager
+     1  Data Science Intern
+     1  Derivative Sales Analyst
+     1  Engineering Manager - Customer Experience AI
+     1  Engineering Manager, FinHub - Financial Intelligence (Platform)
+     1  Engineering Manager, Market Data & Analytics
+     1  Enterprise Risk Management Analyst
+     1  Finance & Strategy Analyst
+     1  Group Product Manager, Developer Infrastructure
+     1  Learning & Development Intern
+     1  Payments Risk Analyst I
+     1  Payments Risk Analyst II
+     1  Senior Analyst, Compliance Technology
+     1  Senior Associate, Business Development
+     1  Senior Engineering Manager, Core AI Automation (Platform)
+     1  Senior Onchain Investigator
+     1  Senior Performance Marketing Manager, Global Paid Social & Mobile UA
+     1  Senior Sourcing Analyst
+     1  Sr. Staff Technical Architect, Unified Trading
+     1  Sr. Staff Technical Risk Architect, Unified Trading
+     1  Sr. Systems Analyst, Finance, Enterprise Apps 
+     1  Strategic Finance Manager, Platform
+     1  Technical Program Manager, CX Intelligence & AI
+     1  Technical Program Manager, Knowledge Systems
+     1  AI Transformation Owner, CRO
+     1  AI Transformation Owner, Product & Design
+     1  Director, Engineering, Platform Operations & Productivity
+     1  Director of Engineering, Database Excellence
+     1  Director of Engineering, Security Factory
+     1  Director of Product Management, Agentic Software Delivery
+     1  Director of Recruiting, Engineering & IT, Bangalore India
+     1  Engineering Manager, Agent Foundations: Agent Execution 
+     1  Engineering Manager, Build 
+     1  Engineering Manager, Core DevOps
+     1  Engineering Manager, Data Foundations
+     1   Engineering Manager, Dedicated Integrations
+     1  Engineering Manager, Dedicated Integrations Team
+     1  Engineering Manager - Git & Gitaly Operations
+     1  Engineering Manager - Nonlinear Productivity (Friction Elimination & Solutions)
+     1  Engineering Manager, SSCS: Supply Chain
+     1  Engineering Manager, Switchboard
+     1  Engineering Manager, Trusted Agentic Development
+     1  Intermediate Security Analyst, Vulnerability Operations  (North America)
+     1  Intermediate Technical Program Manager
+     1  Lead SEC Analyst
+     1  Manager, Support Engineering, US Government
+     1  Principal Product Manager, AI Software Factory
+     1  Principal Security Researcher
+     1  Professional Services - Technical Architect
+     1  Public Sector Strategic Account Executive, SLED - Mountain Plains
+     1  Regional Sales Director, National Security Group
+     1  Sales Development Representative 
+     1  Senior Analyst, Sales Strategy 
+     1  Senior Engineering Manager - Continuous Deployment 
+     1  Senior FP&A Analyst, Cloud Hosting
+     1  Senior Manager, Technical Program Management
+     1  Senior Product Manager, Billing Engine & Platforms Monetization
+     1  Senior Professional Services Technical Architect - Security 
+     1  Senior Program Manager, Enterprise Technology and AI
+     1  Staff Product Security Architect 
+     1  Staff Security Researcher 
+     1  Strategic Account Executive, AI - San Francisco 
+     1  Business Development Manager
+     1  Community Engagement Lead, Spain and Portugal
+     1  Community Support Forecasting and Demand Planning Analyst
+     1  Engineering Manager, Guest & Host
+     1  Engineering Manager, Guest & Host (Host Listings & Quality)
+     1  Gestionnaire des réclamations complexes
+     1  Gestionnaire, Qualité, AirCover 
+     1  Lead Advanced Analyst, Integrated Marketing
+     1  Lead Platform Manager, Tech Foundations
+     1  Quality Manager, AirCover
+     1  Senior Analyst, Advanced Analytics
+     1  Senior Analyst, Frontline Performance
+     1  Senior Engineering Manager, Media Foundation
+     1  Senior Host Development Lead, Incentives
+     1  Senior Manager, Platform Management (Payments)
+     1  Senior Manager, Technical Program Management (Search & AI Foundations)
+     1  Senior Platform Manager, Data Products, Finance Accounting
+     1  Senior Platform Manager, Payment Platform Accounts
+     1  Senior Platform Manager, Trust and Safety
+     1   Staff Platform Manager, AI Personalization
+     1  Staff Platform Manager, Conversational Products
+     1  Staff Platform Manager - GTM & Ops Tooling
+     1  Staff UX Writer, AI
+     1  Strategic Sourcing, Manager - Engineering & Infrastructure
+     1  Superviseur (-e), Soutien Premium Bilingue (français/anglais)
+     1  business development & partnerships
+     1  business development & partnerships – commercial lead
+     1  business development & strategic partnerships - d2c
+     1  Associate Director - Commerce Platform
+     1  Cluster Head- Last mile - Chennai
+     1  Director – Sales, Meesho AI Services (MAS) | North India
+     1  Director Data Science
+     1  Engineering Manager -Backend
+     1  Engineering Manager – AI Engineering
+     1  Engineering Manager- Platform
+     1  Manager – GTM & Sales Strategy, Meesho AI Services (MAS)
+     1  Security Architect - AI-Powered Security Engineering
+     1  Senior Business Development Manager (SBDM)
+     1  Senior Manager - Commerce Platform
+     1  Senior Product Manager - Data & Analytics Platform
+     1  Trainee - Recruitment Coordinator
+     1  Account Executive/ Director - AI Agentic Enterprise Sales
+     1  Backend - TL/STL
+     1  Backend- Technical Lead
+     1  Business Analyst - Assistant Manager - Lending
+     1  Business Analyst - Assistant Manager - Lending Reserve
+     1  Campaign Management - Campaign Ads I Exp- 7 -11 Years
+     1  Campaign Management- Traffic Management- Growth
+     1  Campaign Management- User Growth
+     1  CST - Associate - Email CST
+     1  Deputy General Manager - Product Analyst Lead
+     1  Director - Solutions Sales (Dubai)
+     1  Enterprise GTM Lead, Inference and Agentic AI
+     1  Govt. Ad Sales - Senior Manager/DGM - Paytm Ads - Mumbai
+     1  Growth Manager - Postpaid
+     1  Growth Operations - Campaign - Paytm Money
+     1  Head of Financial Crime & MLRO Paytm Europe
+     1  Pre Sales - AI Solution Architect
+     1  Process Trainer - Lending - Manager - Mumbai
+     1  Process Trainer - Manager - Lending (North & East)
+     1  Process Trainer - Manager - Lending (West)
+     1  Product Management - Data Product | Experience : 5-8 yrs
+     1  Risk Analyst | Exp - 1 to 3 Yrs
+     1  Senior Corporate Development
+     1  Supply chain, Logistics and Operations – Indonesia
+     1  Team Lead - Lending Sales (LRM) - Jaipur
+     1  Team Leader-LRM- Chennai
+     1  Team Leader-LRM- Mumbai

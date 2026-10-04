@@ -80,8 +80,40 @@ def matches_role(title: str, roles: list[str]) -> bool:
     return any(_contains_whole_phrase(title, word) for word in GENERIC_TECHNICAL_TITLE_WORDS)
 
 
+# Alternate spellings/names real job postings use for a configured location.
+# Only includes pairs with real evidence from scripts/benchmark.py's
+# filter_rejections diagnostics (see docs/H1_EXPLAINED.md) -- "Bengaluru" was
+# responsible for 124 wrongly-rejected jobs once boards outside the original
+# 5 India-based companies were added. Not guessed ahead of time.
+LOCATION_ALIASES: dict[str, list[str]] = {
+    "bangalore": ["bangalore", "bengaluru"],
+}
+
+
+def _normalize_location_text(text: str) -> str:
+    """Lowercase, and turn punctuation into spaces, so "Bengaluru, India"
+    and "bengaluru india" compare the same way."""
+    return re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
+
+
+def _matches_remote(normalized_location: str) -> bool:
+    """A bare "Remote" only counts as a match if the location doesn't
+    clearly name somewhere else.
+
+    Real data showed this matters a lot: once global companies were added,
+    "Remote - California"/"Remote, USA"/etc all contain the word "remote",
+    so a plain substring check was accepting hundreds of non-India remote
+    jobs just because the profile lists "Remote". "Remote" alone, or
+    anything mentioning India, is what this profile actually means.
+    """
+    if "india" in normalized_location:
+        return True
+    leftover = normalized_location.replace("remote", "").strip()
+    return leftover == ""
+
+
 def matches_location(location: Optional[str], locations: list[str]) -> bool:
-    """Case-insensitive substring match against configured locations.
+    """Case-insensitive, alias-aware match against configured locations.
 
     No locations configured means we don't filter by location at all. But if
     locations ARE configured, a job with no location string can't be
@@ -92,8 +124,19 @@ def matches_location(location: Optional[str], locations: list[str]) -> bool:
     if not location:
         return False
 
-    location_lower = location.lower()
-    return any(loc.strip().lower() in location_lower for loc in locations)
+    normalized_location = _normalize_location_text(location)
+
+    for configured in locations:
+        configured_lower = configured.strip().lower()
+        if configured_lower == "remote":
+            if _matches_remote(normalized_location):
+                return True
+            continue
+        names_to_check = LOCATION_ALIASES.get(configured_lower, [configured_lower])
+        if any(name in normalized_location for name in names_to_check):
+            return True
+
+    return False
 
 
 def apply_filters(jobs: list[Job], profile: dict) -> list[Job]:

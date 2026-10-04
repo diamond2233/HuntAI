@@ -142,6 +142,56 @@ def test_empty_location_configuration_does_not_reject_jobs():
     assert matches_location("Anywhere", []) is True
 
 
+# --- location aliases (Bengaluru -> Bangalore) ---------------------------------
+# Evidenced from real rejection data: 124 jobs were rejected with location
+# "Bengaluru, India" even though the profile configures "Bangalore".
+
+def test_bengaluru_matches_configured_bangalore():
+    assert matches_location("Bengaluru, India", ["Bangalore"]) is True
+    assert matches_location("Bengaluru", ["Bangalore"]) is True
+
+
+def test_bengaluru_does_not_match_a_different_configured_city():
+    assert matches_location("Bengaluru, India", ["Hyderabad"]) is False
+
+
+def test_bangalore_spelling_still_matches_after_alias_added():
+    assert matches_location("Bangalore, India", ["Bangalore"]) is True
+
+
+# --- "Remote" must mean India, not just any remote job ------------------------
+# Evidenced from real rejection data: once global companies were added, 215
+# of 250 filtered jobs were "Remote - California"/"Remote, USA"/etc -- not
+# India -- passing only because "remote" is a substring of those strings.
+
+def test_bare_remote_matches_configured_remote():
+    assert matches_location("Remote", ["Remote"]) is True
+
+
+def test_remote_india_matches_configured_remote():
+    assert matches_location("Remote - India", ["Remote"]) is True
+    assert matches_location("Remote, India", ["Remote"]) is True
+
+
+def test_remote_outside_india_does_not_match_configured_remote():
+    assert matches_location("Remote - California", ["Remote"]) is False
+    assert matches_location("Remote, USA", ["Remote"]) is False
+    assert matches_location("Remote - Canada", ["Remote"]) is False
+
+
+def test_remote_outside_india_is_rejected_even_with_other_locations_configured():
+    locations = ["Bangalore", "Hyderabad", "Pune", "Noida", "Gurgaon", "Remote"]
+    assert matches_location("Remote - California", locations) is False
+    assert matches_location("Toronto, Ontario, Canada", locations) is False
+
+
+def test_non_remote_city_configured_is_unaffected_by_remote_rule():
+    # A job that isn't remote at all and doesn't match any configured city
+    # must still be rejected -- the Remote-specific rule shouldn't leak into
+    # ordinary city matching.
+    assert matches_location("San Francisco, California", ["Bangalore", "Remote"]) is False
+
+
 # --- apply_filters end-to-end --------------------------------------------------
 
 def test_apply_filters_removes_excluded_company():
