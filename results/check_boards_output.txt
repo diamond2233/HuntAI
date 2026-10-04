@@ -1,0 +1,187 @@
+Checking 'google'...
+Checking 'microsoft'...
+Checking 'atlassian'...
+Checking 'jp morgan'...
+Checking 'morgan stanley'...
+Checking 'goldman sachs'...
+Checking 'de shaw'...
+Checking 'juspay'...
+Checking 'eternal'...
+  HIT [VERIFIED] eternal | lever | slug='eternal' | board_name='eternal' | total=4 | india_or_remote=0 (engineering=0) | explicit_india=0 (engineering=0)
+      sample: Performance Team - Open Interest - NYC
+      sample: Performance Team - Open Interest - SF
+      sample: Performance Technician - Open Interest - NYC
+Checking 'palo alto'...
+Checking 'adobe'...
+Checking 'american express'...
+Checking 'amazon'...
+Checking 'flipkart'...
+Checking 'apple'...
+Checking 'arcesium'...
+Checking 'coindcx'...
+Checking 'meta'...
+Checking 'netflix'...
+Checking 'hotstar'...
+  HIT [UNVERIFIED] hotstar | lever | slug='hotstar' | board_name=None | total=0 | india_or_remote=0 (engineering=0) | explicit_india=0 (engineering=0)
+Checking 'phonepe'...
+Checking 'uber'...
+Checking 'intuit'...
+Checking 'servicenow'...
+Checking 'wells fargo'...
+Checking 'walmart'...
+Checking 'zerodha'...
+Checking 'upstox'...
+Checking 'udaan'...
+Checking 'texas instruments'...
+Checking 'swiggy'...
+Checking 'salesforce'...
+Checking 'qualcomm'...
+Checking 'nvidia'...
+Checking 'paypal'...
+Checking 'ola'...
+Checking 'myntra'...
+Checking 'linkedin'...
+  HIT [VERIFIED] linkedin | lever | slug='linkedin' | board_name='linkedin' | total=23 | india_or_remote=0 (engineering=0) | explicit_india=0 (engineering=0)
+      sample: Anirban jobReq 3 - public
+      sample: BO Prim
+      sample: BO Primary 1
+Checking 'ibm'...
+Checking 'dream11'...
+Checking 'airbus'...
+
+Checking extra Greenhouse-only slugs...
+  HIT [VERIFIED] Stripe | greenhouse | slug='stripe' | board_name='Stripe' | total=716 | india_or_remote=118 (engineering=15) | explicit_india=4 (engineering=2)
+      sample: Abuse Investigator
+      sample: Abuse Investigator
+      sample: Abuse Investigator
+  HIT [VERIFIED] Databricks | greenhouse | slug='databricks' | board_name='Databricks' | total=887 | india_or_remote=158 (engineering=64) | explicit_india=94 (engineering=51)
+      sample: デリバリーソリューションアーキテクト
+      sample: Account Executive 
+      sample: Account Executive, Commercial - Hunter
+  HIT [VERIFIED] Cloudflare | greenhouse | slug='cloudflare' | board_name='Cloudflare' | total=405 | india_or_remote=3 (engineering=1) | explicit_india=1 (engineering=0)
+      sample: Account Executive, FedCiv
+      sample: Account Executive, Indonesia
+      sample: AI Security Research & Red Team Engineer
+  HIT [VERIFIED] Mongodb | greenhouse | slug='mongodb' | board_name='MongoDB' | total=389 | india_or_remote=2 (engineering=0) | explicit_india=2 (engineering=0)
+      sample: Account Development Representative
+      sample: Account Development Representative
+      sample: Account Development Representative
+  HIT [VERIFIED] Twilio | greenhouse | slug='twilio' | board_name='Twilio' | total=125 | india_or_remote=125 (engineering=45) | explicit_india=9 (engineering=4)
+      sample: Account Executive 3
+      sample: Account Executive 4
+      sample: Business Intelligence Analyst 2
+  HIT [VERIFIED] Elastic | greenhouse | slug='elastic' | board_name='Elastic' | total=392 | india_or_remote=14 (engineering=2) | explicit_india=14 (engineering=2)
+      sample: ABM Manager, Global Public Sector
+      sample: ABM Regional Manager, AMER
+      sample: Account Executive
+  HIT [VERIFIED] Coinbase | greenhouse | slug='coinbase' | board_name='Coinbase' | total=229 | india_or_remote=189 (engineering=84) | explicit_india=11 (engineering=6)
+      sample: Accelerations Programs Intern
+      sample: Accountant, Cyprus
+      sample: Accounting Intern
+  HIT [VERIFIED] Okta | greenhouse | slug='okta' | board_name='Okta' | total=368 | india_or_remote=113 (engineering=74) | explicit_india=113 (engineering=74)
+      sample: Account Executive Auth0
+      sample: Account Executive Large Enterprise Public Sector
+      sample: AI Trainer
+  HIT [VERIFIED] Datadog | greenhouse | slug='datadog' | board_name='Datadog' | total=444 | india_or_remote=61 (engineering=19) | explicit_india=8 (engineering=1)
+      sample: AI Research Engineer - Datadog AI Research (DAIR)
+      sample: AI Research Scientist - Datadog AI Research (DAIR)
+      sample: AI Research Scientist - Datadog AI Research (DAIR)
+  HIT [VERIFIED] Gitlab | greenhouse | slug='gitlab' | board_name='GitLab' | total=211 | india_or_remote=211 (engineering=75) | explicit_india=28 (engineering=13)
+      sample: Account Executive - France
+      sample: AI Transformation Owner, CRO
+      sample: AI Transformation Owner, Product & Design
+  HIT [VERIFIED] Airbnb | greenhouse | slug='airbnb' | board_name='Airbnb' | total=154 | india_or_remote=28 (engineering=20) | explicit_india=6 (engineering=3)
+      sample: Account Manager 
+      sample: Associate Legal Counsel, Japan
+      sample: Associate Principal, Procurement Innovation Supplier Programs
+  HIT [VERIFIED] Pinterest | greenhouse | slug='pinterest' | board_name='Pinterest' | total=168 | india_or_remote=73 (engineering=24) | explicit_india=0 (engineering=0)
+      sample: Administrative Business Partner I - Engineering, Product and Design
+      sample: Client Account Manager II
+      sample: Client Account Manager II, Affiliate (tvScientific)
+  HIT [VERIFIED] Dropbox | greenhouse | slug='dropbox' | board_name='Dropbox' | total=39 | india_or_remote=39 (engineering=2) | explicit_india=0 (engineering=0)
+      sample: Account Executive
+      sample: Business Development Manager, Strategic Partnerships
+      sample: Business Development Manager, Strategic Partnerships
+  HIT [VERIFIED] Samsara | greenhouse | slug='samsara' | board_name='Samsara' | total=247 | india_or_remote=212 (engineering=79) | explicit_india=0 (engineering=0)
+      sample: Account Development Representative - Canada
+      sample: Account Development Representative - DACH
+      sample: Account Development Representative - France
+
+Checking extra Lever-only slugs...
+  HIT [VERIFIED] Spotify | lever | slug='spotify' | board_name='spotify' | total=82 | india_or_remote=0 (engineering=0) | explicit_india=0 (engineering=0)
+      sample: Android Engineer - Experience
+      sample: Artist & Label Partnerships Contractor, Vietnam
+      sample: Artist Label Partnerships Manager, Taiwan
+  HIT [VERIFIED] Palantir | lever | slug='palantir' | board_name='palantir' | total=319 | india_or_remote=0 (engineering=0) | explicit_india=0 (engineering=0)
+      sample: Administrative Business Partner
+      sample: Administrative Business Partner
+      sample: Administrative Business Partner - ShipOS
+
+======================================================================
+SUMMARY
+======================================================================
+
+Verified hits (18):
+  (explicit_india = location contains 'India'; this is the number that matters for Step 2 --
+   india_or_remote is the loose literal metric, shown for comparison, mostly non-India noise)
+  eternal              lever      slug=eternal              total=4     india_or_remote=0     (eng=0   ) explicit_india=0     (eng=0)
+  linkedin             lever      slug=linkedin             total=23    india_or_remote=0     (eng=0   ) explicit_india=0     (eng=0)
+  Stripe               greenhouse slug=stripe               total=716   india_or_remote=118   (eng=15  ) explicit_india=4     (eng=2)
+  Databricks           greenhouse slug=databricks           total=887   india_or_remote=158   (eng=64  ) explicit_india=94    (eng=51)
+  Cloudflare           greenhouse slug=cloudflare           total=405   india_or_remote=3     (eng=1   ) explicit_india=1     (eng=0)
+  Mongodb              greenhouse slug=mongodb              total=389   india_or_remote=2     (eng=0   ) explicit_india=2     (eng=0)
+  Twilio               greenhouse slug=twilio               total=125   india_or_remote=125   (eng=45  ) explicit_india=9     (eng=4)
+  Elastic              greenhouse slug=elastic              total=392   india_or_remote=14    (eng=2   ) explicit_india=14    (eng=2)
+  Coinbase             greenhouse slug=coinbase             total=229   india_or_remote=189   (eng=84  ) explicit_india=11    (eng=6)
+  Okta                 greenhouse slug=okta                 total=368   india_or_remote=113   (eng=74  ) explicit_india=113   (eng=74)
+  Datadog              greenhouse slug=datadog              total=444   india_or_remote=61    (eng=19  ) explicit_india=8     (eng=1)
+  Gitlab               greenhouse slug=gitlab               total=211   india_or_remote=211   (eng=75  ) explicit_india=28    (eng=13)
+  Airbnb               greenhouse slug=airbnb               total=154   india_or_remote=28    (eng=20  ) explicit_india=6     (eng=3)
+  Pinterest            greenhouse slug=pinterest            total=168   india_or_remote=73    (eng=24  ) explicit_india=0     (eng=0)
+  Dropbox              greenhouse slug=dropbox              total=39    india_or_remote=39    (eng=2   ) explicit_india=0     (eng=0)
+  Samsara              greenhouse slug=samsara              total=247   india_or_remote=212   (eng=79  ) explicit_india=0     (eng=0)
+  Spotify              lever      slug=spotify              total=82    india_or_remote=0     (eng=0   ) explicit_india=0     (eng=0)
+  Palantir             lever      slug=palantir             total=319   india_or_remote=0     (eng=0   ) explicit_india=0     (eng=0)
+
+Unverified hits (1):
+  hotstar              lever      slug=hotstar              board_name=None                      total=0
+
+Misses (38 of 41 companies, no hit on either platform):
+  adobe
+  airbus
+  amazon
+  american express
+  apple
+  arcesium
+  atlassian
+  coindcx
+  de shaw
+  dream11
+  flipkart
+  goldman sachs
+  google
+  ibm
+  intuit
+  jp morgan
+  juspay
+  meta
+  microsoft
+  morgan stanley
+  myntra
+  netflix
+  nvidia
+  ola
+  palo alto
+  paypal
+  phonepe
+  qualcomm
+  salesforce
+  servicenow
+  swiggy
+  texas instruments
+  uber
+  udaan
+  upstox
+  walmart
+  wells fargo
+  zerodha
