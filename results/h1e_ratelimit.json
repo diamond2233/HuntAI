@@ -1,0 +1,64 @@
+{
+  "jobs_collected_per_source": {
+    "greenhouse": 2002,
+    "lever": 237
+  },
+  "jobs_collected_total": 2239,
+  "jobs_after_filter": 165,
+  "filter_rejections": {
+    "role": 1486,
+    "location": 588
+  },
+  "max_jobs_used_for_matching": 165,
+  "openai_model": "gpt-4.1-mini",
+  "by_workers": {
+    "8": {
+      "runs": 1,
+      "jobs_matched": 165,
+      "median_match_seconds": 66.73,
+      "median_openai_calls": 164,
+      "median_skipped_jobs": 1,
+      "median_rate_limit_hits": 51,
+      "median_rate_limit_wait_seconds": 78.047,
+      "median_prompt_tokens": 368378,
+      "median_completion_tokens": 28929,
+      "median_total_tokens": 397307,
+      "median_estimated_cost_usd": 0.193638,
+      "all_run_seconds": [
+        66.73
+      ]
+    },
+    "4": {
+      "runs": 1,
+      "jobs_matched": 165,
+      "median_match_seconds": 78.076,
+      "median_openai_calls": 165,
+      "median_skipped_jobs": 0,
+      "median_rate_limit_hits": 0,
+      "median_rate_limit_wait_seconds": 0.0,
+      "median_prompt_tokens": 371440,
+      "median_completion_tokens": 29227,
+      "median_total_tokens": 400667,
+      "median_estimated_cost_usd": 0.195339,
+      "all_run_seconds": [
+        78.076
+      ]
+    },
+    "1": {
+      "runs": 1,
+      "jobs_matched": 165,
+      "median_match_seconds": 298.053,
+      "median_openai_calls": 165,
+      "median_skipped_jobs": 0,
+      "median_rate_limit_hits": 0,
+      "median_rate_limit_wait_seconds": 0.0,
+      "median_prompt_tokens": 371440,
+      "median_completion_tokens": 29173,
+      "median_total_tokens": 400613,
+      "median_estimated_cost_usd": 0.195253,
+      "all_run_seconds": [
+        298.053
+      ]
+    }
+  }
+}

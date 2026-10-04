@@ -264,6 +264,8 @@ def run_fair_comparison(workers: int, runs: int, max_jobs: int, output_name: str
     per_run_cost = []
     per_run_openai_calls = []
     per_run_skipped = []
+    per_run_rate_limit_hits = []
+    per_run_rate_limit_wait_seconds = []
 
     for run_number in range(1, runs + 1):
         start = time.perf_counter()
@@ -279,7 +281,9 @@ def run_fair_comparison(workers: int, runs: int, max_jobs: int, output_name: str
 
         print(
             f"  run {run_number}/{runs}: {elapsed:.2f}s, {len(usage_log)} calls, "
-            f"{stats.get('skipped_jobs', 0)} skipped"
+            f"{stats.get('skipped_jobs', 0)} skipped, "
+            f"{stats.get('rate_limit_hits', 0)} 429s, "
+            f"{stats.get('rate_limit_wait_seconds', 0.0):.1f}s waited on rate limits"
         )
 
         per_run_seconds.append(elapsed)
@@ -289,6 +293,8 @@ def run_fair_comparison(workers: int, runs: int, max_jobs: int, output_name: str
         per_run_cost.append(cost if cost is not None else 0.0)
         per_run_openai_calls.append(len(usage_log))
         per_run_skipped.append(stats.get("skipped_jobs", 0))
+        per_run_rate_limit_hits.append(stats.get("rate_limit_hits", 0))
+        per_run_rate_limit_wait_seconds.append(stats.get("rate_limit_wait_seconds", 0.0))
 
     worker_result = {
         "runs": runs,
@@ -296,6 +302,8 @@ def run_fair_comparison(workers: int, runs: int, max_jobs: int, output_name: str
         "median_match_seconds": round(_median(per_run_seconds), 3),
         "median_openai_calls": _median(per_run_openai_calls),
         "median_skipped_jobs": _median(per_run_skipped),
+        "median_rate_limit_hits": _median(per_run_rate_limit_hits),
+        "median_rate_limit_wait_seconds": round(_median(per_run_rate_limit_wait_seconds), 3),
         "median_prompt_tokens": _median(per_run_prompt_tokens),
         "median_completion_tokens": _median(per_run_completion_tokens),
         "median_total_tokens": _median(per_run_total_tokens),
@@ -328,12 +336,17 @@ def run_fair_comparison(workers: int, runs: int, max_jobs: int, output_name: str
 
     if len(results["by_workers"]) > 1:
         print("\nComparison table (median of each worker count's runs):")
-        print(f"  {'workers':<10}{'match_seconds':<16}{'openai_calls':<14}{'tokens':<10}{'cost_usd':<10}")
+        header = (
+            f"  {'workers':<9}{'match_s':<10}{'matched':<9}{'skipped':<9}"
+            f"{'429s':<7}{'wait_s':<9}{'tokens':<10}{'cost_usd':<10}"
+        )
+        print(header)
         for worker_count, data in sorted(results["by_workers"].items(), key=lambda kv: int(kv[0])):
             print(
-                f"  {worker_count:<10}{data['median_match_seconds']:<16}"
-                f"{data['median_openai_calls']:<14}{data['median_total_tokens']:<10}"
-                f"{data['median_estimated_cost_usd']}"
+                f"  {worker_count:<9}{data['median_match_seconds']:<10}"
+                f"{data['jobs_matched'] - data['median_skipped_jobs']:<9}{data['median_skipped_jobs']:<9}"
+                f"{data['median_rate_limit_hits']:<7}{data['median_rate_limit_wait_seconds']:<9}"
+                f"{data['median_total_tokens']:<10}{data['median_estimated_cost_usd']}"
             )
 
 
