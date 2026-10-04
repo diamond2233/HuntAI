@@ -71,6 +71,13 @@ fail with a timeout error twice, then succeed on the third try, and check
 that the code waited 1s then 2s between attempts (using a mocked `sleep` so
 the test itself doesn't actually take 3 seconds).
 
+One more detail: the OpenAI SDK itself already retries rate limits/5xx/
+timeouts up to 2 times before our code even sees the error. Left alone,
+that would stack with our own retries -- one failing call could end up
+being attempted up to 12 times (4 of ours x 3 of the SDK's) instead of 4.
+We create the client with `OpenAI(max_retries=0)` so the SDK never retries
+on its own, leaving our retry loop as the only one in control.
+
 ## Change 3: Failure isolation (one bad job doesn't ruin the batch)
 
 **Before:** if even one job, out of however many you were matching, failed

@@ -336,6 +336,19 @@ def test_results_keep_input_order_regardless_of_which_call_finishes_first():
     assert [match.job.title for match in matches] == ["Slow Job", "Fast Job"]
 
 
+def test_client_is_created_with_sdk_retries_disabled():
+    # The SDK retries 429/5xx/timeouts itself by default -- our own retry
+    # loop is the only retry layer we want, so the client must be created
+    # with max_retries=0 to turn the SDK's off.
+    result = _MatchResult(score=60, rationale="Ok.")
+    client = _mock_client(result)
+
+    with patch("pipeline.matcher.OpenAI", return_value=client) as MockOpenAI:
+        match_jobs([_job()], _profile())
+
+    MockOpenAI.assert_called_once_with(max_retries=0)
+
+
 def test_default_max_workers_is_eight():
     assert DEFAULT_MAX_WORKERS == 8
 

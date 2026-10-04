@@ -230,7 +230,11 @@ def match_jobs(
     if not model:
         raise RuntimeError("OPENAI_MODEL is not set. Add it to .env before running the matcher.")
 
-    client = OpenAI()
+    # The SDK itself retries 429/5xx/timeouts up to 2 times by default. Our
+    # own retry loop in _call_with_retries() already handles that, so we
+    # disable the SDK's retries here -- otherwise one failing call could be
+    # attempted up to (our 4 attempts) x (the SDK's 3 attempts) = 12 times.
+    client = OpenAI(max_retries=0)
     results: list[JobMatch | None] = [None] * len(jobs)
     skipped_jobs = 0
 
