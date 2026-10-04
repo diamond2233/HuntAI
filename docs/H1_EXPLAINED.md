@@ -261,6 +261,51 @@ and how many times it was tried before giving up. That's what
   backoff not being long enough for this batch's token volume, not at
   anything wrong with those specific jobs).
 
+## H1e: Fixing the rate-limit skips properly
+
+H1d found the cause (10 of 165 jobs skipped, 100% `RateLimitError`, 100% at
+4/4 attempts). This section explains the actual fix.
+
+**What a rate limit is:** OpenAI caps how many tokens your account can send
+it per minute (this account's cap is 200,000 tokens/minute, visible in every
+`RateLimitError`'s message). It's not about any one request being too big --
+it's a *budget* for the whole account, shared across every request happening
+in the same 1-minute window. When 8 workers all send large job descriptions
+at once, their combined tokens can blow through that budget even though each
+individual request is fine on its own.
+
+**Why exponential backoff alone wasn't enough:** the old retry waited 1s,
+then 2s, then 4s -- about 7 seconds total. That's a reasonable amount of
+time to wait out a single slow server or a brief network blip. But a
+per-minute token limit doesn't necessarily free up again in 7 seconds --
+if the account is still near the cap when you retry, you just get
+rate-limited again, and you've used up all your retries without ever
+giving the 1-minute window a real chance to reset.
+
+**What the shared pause does:** before, every worker handled its own rate
+limit independently -- worker A gets a 429, waits a bit, retries; meanwhile
+worker B (which knows nothing about worker A) does the exact same thing at
+the exact same time, and they both get rate-limited again together. Now
+there's one shared "resume at this time" clock that every worker checks.
+The first worker to get rate-limited sets it; if a second worker gets
+rate-limited too, it can only push that clock *later*, never earlier. Every
+worker about to retry waits until that shared clock has passed, so they
+retry together, after the limit has actually had a chance to recover --
+instead of each one hammering the same still-active limit on its own
+schedule.
+
+**Why more workers stop helping once you hit the token limit:** concurrency
+helps because each OpenAI call mostly just *waits* for a response -- more
+workers means more of those waits happen at once. But once your total token
+throughput hits the per-minute cap, you're not waiting on network latency
+anymore, you're waiting on OpenAI's clock. Adding more workers at that point
+doesn't send more tokens per minute -- the cap is the cap -- it just means
+more workers are queued up competing for the same limited budget. That's
+exactly what the real numbers show: 8 workers (66.7s) was barely faster than
+4 workers (78.1s) on this batch, because 8 workers was pushing hard enough
+to actually hit the rate limit (51 times!) while 4 workers stayed under it
+entirely and got the same job done with zero 429s.
+
 ## Quick check: 3 questions
 
 1. If OpenAI returns a "rate limit exceeded" error for one job, roughly how
