@@ -14,7 +14,13 @@ from openai import APITimeoutError, OpenAIError
 from pydantic import ValidationError
 
 from models.job import Job
-from pipeline.matcher import DEFAULT_MAX_WORKERS, MAX_DESCRIPTION_CHARS, _MatchResult, match_jobs
+from pipeline.matcher import (
+    DEFAULT_MAX_WORKERS,
+    MAX_DESCRIPTION_CHARS,
+    MAX_RETRY_ATTEMPTS,
+    _MatchResult,
+    match_jobs,
+)
 
 
 def _job(title="Backend Engineer", company="Acme", description="Some description.") -> Job:
@@ -200,6 +206,98 @@ def test_refusal_is_skipped_not_raised():
 
     assert matches == []
     assert stats["skipped_jobs"] == 1
+
+
+# --- skipped_details: every skip must say why -----------------------------
+
+def test_skipped_details_records_id_title_company_for_non_retryable_error():
+    client = MagicMock()
+    client.chat.completions.parse.side_effect = OpenAIError("boom")
+    job = _job(title="Backend Engineer", company="Acme")
+    stats = {}
+
+    with patch("pipeline.matcher.OpenAI", return_value=client):
+        match_jobs([job], _profile(), stats=stats)
+
+    assert len(stats["skipped_details"]) == 1
+    detail = stats["skipped_details"][0]
+    assert detail["id"] == job.id
+    assert detail["title"] == "Backend Engineer"
+    assert detail["company"] == "Acme"
+    assert detail["error_type"] == "OpenAIError"
+    assert "boom" in detail["error_message"]
+    assert detail["attempts"] == 1
+
+
+def test_skipped_details_records_attempts_and_error_type_after_retry_exhaustion():
+    client = MagicMock()
+    client.chat.completions.parse.side_effect = [_timeout_error()] * (MAX_RETRY_ATTEMPTS + 1)
+    stats = {}
+
+    with (
+        patch("pipeline.matcher.time.sleep"),
+        patch("pipeline.matcher.OpenAI", return_value=client),
+    ):
+        match_jobs([_job()], _profile(), stats=stats)
+
+    detail = stats["skipped_details"][0]
+    assert detail["error_type"] == "APITimeoutError"
+    assert detail["attempts"] == MAX_RETRY_ATTEMPTS + 1
+
+
+def test_skipped_details_records_refusal_as_its_own_error_type():
+    client = MagicMock()
+    client.chat.completions.parse.return_value = _fake_completion(refusal="cannot help with this")
+    stats = {}
+
+    with patch("pipeline.matcher.OpenAI", return_value=client):
+        match_jobs([_job()], _profile(), stats=stats)
+
+    detail = stats["skipped_details"][0]
+    assert detail["error_type"] == "Refusal"
+    assert detail["attempts"] == 1
+    assert "cannot help with this" in detail["error_message"]
+
+
+def test_skipped_details_records_missing_structured_result_as_its_own_error_type():
+    client = MagicMock()
+    client.chat.completions.parse.return_value = _fake_completion(parsed=None)
+    stats = {}
+
+    with patch("pipeline.matcher.OpenAI", return_value=client):
+        match_jobs([_job()], _profile(), stats=stats)
+
+    detail = stats["skipped_details"][0]
+    assert detail["error_type"] == "NoStructuredResult"
+    assert detail["attempts"] == 1
+
+
+def test_multiple_skipped_jobs_each_get_their_own_detail_entry():
+    def fake_parse(*, model, messages, response_format):
+        raise OpenAIError("boom")
+
+    client = MagicMock()
+    client.chat.completions.parse.side_effect = fake_parse
+    jobs = [_job(title="Job A"), _job(title="Job B")]
+    stats = {}
+
+    with patch("pipeline.matcher.OpenAI", return_value=client):
+        match_jobs(jobs, _profile(), stats=stats)
+
+    assert stats["skipped_jobs"] == 2
+    assert {d["title"] for d in stats["skipped_details"]} == {"Job A", "Job B"}
+
+
+def test_no_skips_results_in_empty_skipped_details():
+    result = _MatchResult(score=60, rationale="Ok.")
+    client = _mock_client(result)
+    stats = {}
+
+    with patch("pipeline.matcher.OpenAI", return_value=client):
+        match_jobs([_job()], _profile(), stats=stats)
+
+    assert stats["skipped_jobs"] == 0
+    assert stats["skipped_details"] == []
 
 
 def test_multiple_jobs_result_in_one_api_call_per_job():

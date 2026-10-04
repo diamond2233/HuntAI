@@ -21,6 +21,7 @@ from collectors.lever import LeverCollector
 from exporters.csv import export_csv
 from exporters.json import export_json
 from exporters.markdown import export_markdown
+from exporters.skipped import export_skipped_report
 from models.job import Job
 from pipeline.dedup import deduplicate
 from pipeline.filters import apply_filters
@@ -100,11 +101,35 @@ def deduplicate_node(state: PipelineState) -> PipelineState:
 
 
 def match_node(state: PipelineState) -> PipelineState:
-    """Run each deduplicated job through the OpenAI matcher."""
+    """Run each deduplicated job through the OpenAI matcher.
+
+    A job can fail matching even after retries (see pipeline/matcher.py);
+    rather than letting that happen silently, every skip is written to
+    output/skipped.json (always, even when nothing was skipped -- a missing
+    file should never be the only signal that a run was clean) and a
+    one-line warning is printed when any job actually was skipped.
+    """
     profile = state.get("profile") or {}
     filtered_jobs = state.get("filtered_jobs") or []
-    matched_jobs = match_jobs(filtered_jobs, profile)
-    return {"matched_jobs": matched_jobs}
+
+    stats: dict = {}
+    matched_jobs = match_jobs(filtered_jobs, profile, stats=stats)
+
+    skipped_jobs = stats.get("skipped_jobs", 0)
+    skipped_details = stats.get("skipped_details", [])
+    export_skipped_report(skipped_jobs, skipped_details, OUTPUT_DIR / "skipped.json")
+
+    if skipped_jobs:
+        print(
+            f"WARNING: {skipped_jobs} of {len(filtered_jobs)} jobs skipped "
+            f"-- see {OUTPUT_DIR / 'skipped.json'}"
+        )
+
+    return {
+        "matched_jobs": matched_jobs,
+        "skipped_jobs": skipped_jobs,
+        "skipped_details": skipped_details,
+    }
 
 
 def rank_node(state: PipelineState) -> PipelineState:

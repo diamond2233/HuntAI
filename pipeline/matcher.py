@@ -91,6 +91,18 @@ has all of can outscore a job listing 10 skills the candidate mostly lacks).
 """
 
 
+class MatchFailure(RuntimeError):
+    """Raised when a job could not be matched, carrying enough detail for
+    the caller to report exactly why it's being skipped -- not just that it
+    was.
+    """
+
+    def __init__(self, message: str, *, error_type: str, attempts: int):
+        super().__init__(message)
+        self.error_type = error_type
+        self.attempts = attempts
+
+
 class _MatchResult(BaseModel):
     """Structured output requested from the LLM.
 
@@ -159,25 +171,30 @@ def _call_with_retries(client: OpenAI, model: str, job: Job, profile: dict):
                 response_format=_MatchResult,
             )
         except RETRYABLE_ERRORS as exc:
+            attempts = retry_number + 1
             if retry_number == MAX_RETRY_ATTEMPTS:
-                raise RuntimeError(
+                raise MatchFailure(
                     f"OpenAI matching call failed for job '{job.title}' at "
-                    f"'{job.company}' after {retry_number + 1} attempts: {exc}"
+                    f"'{job.company}' after {attempts} attempts: {exc}",
+                    error_type=type(exc).__name__,
+                    attempts=attempts,
                 ) from exc
             backoff_seconds = RETRY_BACKOFF_SECONDS * (2**retry_number)
             logger.warning(
                 "OpenAI call failed for job '%s' at '%s' (attempt %d/%d, %s) -- retrying in %.1fs.",
                 job.title,
                 job.company,
-                retry_number + 1,
+                attempts,
                 MAX_RETRY_ATTEMPTS + 1,
                 type(exc).__name__,
                 backoff_seconds,
             )
             time.sleep(backoff_seconds)
         except (OpenAIError, ValidationError) as exc:
-            raise RuntimeError(
-                f"OpenAI matching call failed for job '{job.title}' at '{job.company}': {exc}"
+            raise MatchFailure(
+                f"OpenAI matching call failed for job '{job.title}' at '{job.company}': {exc}",
+                error_type=type(exc).__name__,
+                attempts=retry_number + 1,
             ) from exc
 
 
@@ -186,14 +203,18 @@ def _match_job(client: OpenAI, model: str, job: Job, profile: dict) -> JobMatch:
     message = completion.choices[0].message
 
     if message.refusal:
-        raise RuntimeError(
-            f"OpenAI refused to evaluate job '{job.title}' at '{job.company}': {message.refusal}"
+        raise MatchFailure(
+            f"OpenAI refused to evaluate job '{job.title}' at '{job.company}': {message.refusal}",
+            error_type="Refusal",
+            attempts=1,
         )
 
     result = message.parsed
     if result is None:
-        raise RuntimeError(
-            f"OpenAI returned no structured result for job '{job.title}' at '{job.company}'."
+        raise MatchFailure(
+            f"OpenAI returned no structured result for job '{job.title}' at '{job.company}'.",
+            error_type="NoStructuredResult",
+            attempts=1,
         )
 
     return JobMatch(
@@ -219,11 +240,14 @@ def match_jobs(
 
     A job that still fails after retries is logged and skipped instead of
     aborting the whole run. Pass a `stats` dict to find out how many jobs
-    were skipped: stats["skipped_jobs"].
+    were skipped (stats["skipped_jobs"]) and exactly why (stats
+    ["skipped_details"], one entry per skipped job: id, title, company,
+    error_type, error_message, attempts).
     """
     if not jobs:
         if stats is not None:
             stats["skipped_jobs"] = 0
+            stats["skipped_details"] = []
         return []
 
     model = os.getenv("OPENAI_MODEL")
@@ -236,7 +260,7 @@ def match_jobs(
     # attempted up to (our 4 attempts) x (the SDK's 3 attempts) = 12 times.
     client = OpenAI(max_retries=0)
     results: list[JobMatch | None] = [None] * len(jobs)
-    skipped_jobs = 0
+    skipped_details: list[dict] = []
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_index = {
@@ -247,8 +271,17 @@ def match_jobs(
             job = jobs[index]
             try:
                 results[index] = future.result()
-            except RuntimeError as exc:
-                skipped_jobs += 1
+            except MatchFailure as exc:
+                skipped_details.append(
+                    {
+                        "id": job.id,
+                        "title": job.title,
+                        "company": job.company,
+                        "error_type": exc.error_type,
+                        "error_message": str(exc),
+                        "attempts": exc.attempts,
+                    }
+                )
                 logger.error(
                     "Skipping job '%s' at '%s' -- failed after retries: %s",
                     job.title,
@@ -257,6 +290,7 @@ def match_jobs(
                 )
 
     if stats is not None:
-        stats["skipped_jobs"] = skipped_jobs
+        stats["skipped_jobs"] = len(skipped_details)
+        stats["skipped_details"] = skipped_details
 
     return [match for match in results if match is not None]
