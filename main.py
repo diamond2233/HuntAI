@@ -1,9 +1,7 @@
 """HuntAI entry point.
 
 Runs the collection stage of the pipeline end to end: loads config/profile.yaml,
-builds the LangGraph graph, and invokes it. Only collect_node has real logic
-right now, so this will actually reach out to any Greenhouse boards enabled in
-the profile. Filtering, matching, ranking, and export are not implemented yet.
+builds the LangGraph graph, and invokes it. 
 """
 
 import yaml
