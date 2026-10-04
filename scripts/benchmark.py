@@ -117,13 +117,33 @@ def _match_with_usage_tracking(jobs: list[Job], profile: dict) -> tuple[list, li
     return matched_jobs, usage_log
 
 
-def _diagnose_filter_rejections(jobs: list[Job], profile: dict) -> tuple[dict[str, int], Counter]:
+# Substrings used to flag a rejected title as "plausibly a real tech role"
+# -- purely for spotting false negatives in the role filter. Checked as a
+# plain lowercase substring (not whole-word), since this is just a human
+# sanity check, not a filtering rule.
+TECH_KEYWORDS_IN_REJECTED_TITLES = [
+    "engineer", "engineering", "developer", "development", "scientist",
+    "analyst", "sde", "technical", "software", "data", "ml", "ai",
+    "backend", "frontend", "platform", "devops", "security", "qa",
+]
+
+
+def _looks_like_a_tech_title(title: str) -> bool:
+    title_lower = title.lower()
+    return any(keyword in title_lower for keyword in TECH_KEYWORDS_IN_REJECTED_TITLES)
+
+
+def _diagnose_filter_rejections(jobs: list[Job], profile: dict) -> tuple[dict[str, int], dict]:
     """Classify why each job was rejected, using filters.py's own functions.
 
     Re-applies is_excluded_company/matches_role/matches_location in the same
     order apply_filters() does, so a job ends up counted under whichever
     check it actually failed first. This is read-only diagnostics -- it
     doesn't change what apply_filters() itself does.
+
+    Returns (rejections, extra) where rejections is {reason: count} (saved
+    to the benchmark JSON) and extra holds the detailed, print-only
+    breakdowns used to investigate the role filter specifically.
     """
     excluded_companies = profile.get("excluded_companies") or []
     roles = profile.get("roles") or []
@@ -131,17 +151,40 @@ def _diagnose_filter_rejections(jobs: list[Job], profile: dict) -> tuple[dict[st
 
     rejections = Counter()
     rejected_location_strings = Counter()
+    rejected_role_titles = Counter()
+    tech_looking_titles_rejected_for_role = Counter()
+    per_company = {}
 
     for job in jobs:
+        company_stats = per_company.setdefault(
+            job.company, {"collected": 0, "rejected_for_role": 0, "kept": 0}
+        )
+        company_stats["collected"] += 1
+
         if is_excluded_company(job.company, excluded_companies):
             rejections["excluded_company"] += 1
-        elif not matches_role(job.title, roles):
+            continue
+        if not matches_role(job.title, roles):
             rejections["role"] += 1
-        elif not matches_location(job.location, locations):
+            rejected_role_titles[job.title] += 1
+            company_stats["rejected_for_role"] += 1
+            if _looks_like_a_tech_title(job.title):
+                tech_looking_titles_rejected_for_role[job.title] += 1
+            continue
+        if not matches_location(job.location, locations):
             rejections["location"] += 1
             rejected_location_strings[job.location or "(none)"] += 1
+            continue
 
-    return dict(rejections), rejected_location_strings
+        company_stats["kept"] += 1
+
+    extra = {
+        "rejected_location_strings": rejected_location_strings,
+        "rejected_role_titles": rejected_role_titles,
+        "tech_looking_titles_rejected_for_role": tech_looking_titles_rejected_for_role,
+        "per_company": per_company,
+    }
+    return dict(rejections), extra
 
 
 def _estimate_cost_usd(model: str, prompt_tokens: int, completion_tokens: int) -> float | None:
@@ -154,11 +197,11 @@ def _estimate_cost_usd(model: str, prompt_tokens: int, completion_tokens: int) -
     )
 
 
-def run_benchmark() -> tuple[dict, Counter]:
-    """Runs the pipeline once and returns (results, rejected_location_strings).
+def run_benchmark() -> tuple[dict, dict]:
+    """Runs the pipeline once and returns (results, rejection_diagnostics).
 
-    rejected_location_strings is diagnostic-only (see _diagnose_filter_rejections)
-    and isn't part of the saved JSON -- it's returned so main() can print it.
+    rejection_diagnostics is print-only (see _diagnose_filter_rejections) and
+    isn't part of the saved JSON -- it's returned so main() can print it.
     """
     profile = _load_profile()
     stage_seconds = {}
@@ -172,7 +215,7 @@ def run_benchmark() -> tuple[dict, Counter]:
     filtered_jobs = apply_filters(jobs, profile)
     stage_seconds["filter"] = time.perf_counter() - start
 
-    filter_rejections, rejected_location_strings = _diagnose_filter_rejections(jobs, profile)
+    filter_rejections, rejection_diagnostics = _diagnose_filter_rejections(jobs, profile)
 
     start = time.perf_counter()
     deduplicated_jobs = deduplicate(filtered_jobs)
@@ -218,7 +261,7 @@ def run_benchmark() -> tuple[dict, Counter]:
         ),
         "final_ranked_jobs": len(ranked_jobs),
         "stage_seconds": {stage: round(seconds, 3) for stage, seconds in stage_seconds.items()},
-    }, rejected_location_strings
+    }, rejection_diagnostics
 
 
 def main() -> None:
@@ -231,7 +274,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    results, rejected_location_strings = run_benchmark()
+    results, diagnostics = run_benchmark()
 
     output_path = PROJECT_ROOT / "results" / args.output_name
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -242,8 +285,25 @@ def main() -> None:
     print(f"\nSaved to {output_path}")
 
     print("\nTop 25 location strings among jobs rejected for location:")
-    for location, count in rejected_location_strings.most_common(25):
+    for location, count in diagnostics["rejected_location_strings"].most_common(25):
         print(f"  {count:>4}  {location}")
+
+    print("\nTop 40 most common rejected-for-role titles:")
+    for title, count in diagnostics["rejected_role_titles"].most_common(40):
+        print(f"  {count:>4}  {title}")
+
+    print("\nJobs per company (collected / rejected for role / kept):")
+    for company, stats in sorted(diagnostics["per_company"].items()):
+        print(f"  {company:<30} collected={stats['collected']:>4}  rejected_for_role={stats['rejected_for_role']:>4}  kept={stats['kept']:>4}")
+
+    tech_looking = diagnostics["tech_looking_titles_rejected_for_role"]
+    print(
+        f"\nRejected-for-role titles that look like tech roles "
+        f"(contain engineer/developer/scientist/analyst/sde/technical/software/"
+        f"data/ml/ai/backend/frontend/platform/devops/security/qa) -- {sum(tech_looking.values())} total:"
+    )
+    for title, count in tech_looking.most_common():
+        print(f"  {count:>4}  {title}")
 
 
 if __name__ == "__main__":
