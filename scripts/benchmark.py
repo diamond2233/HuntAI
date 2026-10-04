@@ -18,6 +18,7 @@ import json
 import os
 import sys
 import time
+from collections import Counter
 from pathlib import Path
 from unittest.mock import patch
 
@@ -32,7 +33,7 @@ from collectors.greenhouse import GreenhouseCollector  # noqa: E402
 from collectors.lever import LeverCollector  # noqa: E402
 from models.job import Job  # noqa: E402
 from pipeline.dedup import deduplicate  # noqa: E402
-from pipeline.filters import apply_filters  # noqa: E402
+from pipeline.filters import apply_filters, is_excluded_company, matches_location, matches_role  # noqa: E402
 from pipeline.matcher import match_jobs  # noqa: E402
 from pipeline.ranker import rank_jobs  # noqa: E402
 
@@ -116,6 +117,33 @@ def _match_with_usage_tracking(jobs: list[Job], profile: dict) -> tuple[list, li
     return matched_jobs, usage_log
 
 
+def _diagnose_filter_rejections(jobs: list[Job], profile: dict) -> tuple[dict[str, int], Counter]:
+    """Classify why each job was rejected, using filters.py's own functions.
+
+    Re-applies is_excluded_company/matches_role/matches_location in the same
+    order apply_filters() does, so a job ends up counted under whichever
+    check it actually failed first. This is read-only diagnostics -- it
+    doesn't change what apply_filters() itself does.
+    """
+    excluded_companies = profile.get("excluded_companies") or []
+    roles = profile.get("roles") or []
+    locations = profile.get("locations") or []
+
+    rejections = Counter()
+    rejected_location_strings = Counter()
+
+    for job in jobs:
+        if is_excluded_company(job.company, excluded_companies):
+            rejections["excluded_company"] += 1
+        elif not matches_role(job.title, roles):
+            rejections["role"] += 1
+        elif not matches_location(job.location, locations):
+            rejections["location"] += 1
+            rejected_location_strings[job.location or "(none)"] += 1
+
+    return dict(rejections), rejected_location_strings
+
+
 def _estimate_cost_usd(model: str, prompt_tokens: int, completion_tokens: int) -> float | None:
     if model != PRICED_MODEL:
         return None
@@ -126,7 +154,12 @@ def _estimate_cost_usd(model: str, prompt_tokens: int, completion_tokens: int) -
     )
 
 
-def run_benchmark() -> dict:
+def run_benchmark() -> tuple[dict, Counter]:
+    """Runs the pipeline once and returns (results, rejected_location_strings).
+
+    rejected_location_strings is diagnostic-only (see _diagnose_filter_rejections)
+    and isn't part of the saved JSON -- it's returned so main() can print it.
+    """
     profile = _load_profile()
     stage_seconds = {}
     total_start = time.perf_counter()
@@ -138,6 +171,8 @@ def run_benchmark() -> dict:
     start = time.perf_counter()
     filtered_jobs = apply_filters(jobs, profile)
     stage_seconds["filter"] = time.perf_counter() - start
+
+    filter_rejections, rejected_location_strings = _diagnose_filter_rejections(jobs, profile)
 
     start = time.perf_counter()
     deduplicated_jobs = deduplicate(filtered_jobs)
@@ -163,6 +198,7 @@ def run_benchmark() -> dict:
         "jobs_collected_per_source": jobs_per_source,
         "jobs_collected_total": len(jobs),
         "jobs_after_filter": len(filtered_jobs),
+        "filter_rejections": filter_rejections,
         "jobs_after_dedup": len(deduplicated_jobs),
         "openai_calls": len(usage_log),
         "openai_model": model,
@@ -182,7 +218,7 @@ def run_benchmark() -> dict:
         ),
         "final_ranked_jobs": len(ranked_jobs),
         "stage_seconds": {stage: round(seconds, 3) for stage, seconds in stage_seconds.items()},
-    }
+    }, rejected_location_strings
 
 
 def main() -> None:
@@ -195,7 +231,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    results = run_benchmark()
+    results, rejected_location_strings = run_benchmark()
 
     output_path = PROJECT_ROOT / "results" / args.output_name
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -204,6 +240,10 @@ def main() -> None:
 
     print(json.dumps(results, indent=2))
     print(f"\nSaved to {output_path}")
+
+    print("\nTop 25 location strings among jobs rejected for location:")
+    for location, count in rejected_location_strings.most_common(25):
+        print(f"  {count:>4}  {location}")
 
 
 if __name__ == "__main__":
