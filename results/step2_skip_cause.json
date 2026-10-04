@@ -1,0 +1,85 @@
+{
+  "skipped_jobs": 10,
+  "skipped_details": [
+    {
+      "id": "8147071",
+      "title": "Staff Software Engineer, Identity Administration",
+      "company": "Okta",
+      "error_type": "RateLimitError",
+      "error_message": "OpenAI matching call failed for job 'Staff Software Engineer, Identity Administration' at 'Okta' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 198419, Requested 2103. Please try again in 156ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}",
+      "attempts": 4
+    },
+    {
+      "id": "8053763",
+      "title": "Staff Software Engineer-Salesforce",
+      "company": "Okta",
+      "error_type": "RateLimitError",
+      "error_message": "OpenAI matching call failed for job 'Staff Software Engineer-Salesforce' at 'Okta' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 196769, Requested 3559. Please try again in 98ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}",
+      "attempts": 4
+    },
+    {
+      "id": "8007091",
+      "title": "Staff Software Engineer - Windows",
+      "company": "Okta",
+      "error_type": "RateLimitError",
+      "error_message": "OpenAI matching call failed for job 'Staff Software Engineer - Windows' at 'Okta' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 198794, Requested 2449. Please try again in 372ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}",
+      "attempts": 4
+    },
+    {
+      "id": "7996776",
+      "title": "Principal Engineer (L5)",
+      "company": "Twilio",
+      "error_type": "RateLimitError",
+      "error_message": "OpenAI matching call failed for job 'Principal Engineer (L5)' at 'Twilio' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 198650, Requested 2433. Please try again in 324ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}",
+      "attempts": 4
+    },
+    {
+      "id": "8687026002",
+      "title": "Intermediate Support Engineer",
+      "company": "GitLab",
+      "error_type": "RateLimitError",
+      "error_message": "OpenAI matching call failed for job 'Intermediate Support Engineer' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 197190, Requested 3227. Please try again in 125ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}",
+      "attempts": 4
+    },
+    {
+      "id": "8716143002",
+      "title": "Senior Backend Engineer, India",
+      "company": "GitLab",
+      "error_type": "RateLimitError",
+      "error_message": "OpenAI matching call failed for job 'Senior Backend Engineer, India' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 197646, Requested 2898. Please try again in 163ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}",
+      "attempts": 4
+    },
+    {
+      "id": "8826920002",
+      "title": "Senior Frontend Engineer",
+      "company": "GitLab",
+      "error_type": "RateLimitError",
+      "error_message": "OpenAI matching call failed for job 'Senior Frontend Engineer' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 197575, Requested 2937. Please try again in 153ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}",
+      "attempts": 4
+    },
+    {
+      "id": "8730125002",
+      "title": "Senior Release Engineer",
+      "company": "GitLab",
+      "error_type": "RateLimitError",
+      "error_message": "OpenAI matching call failed for job 'Senior Release Engineer' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 199156, Requested 3288. Please try again in 733ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}",
+      "attempts": 4
+    },
+    {
+      "id": "8773546002",
+      "title": "Site Reliability Engineer, Infrastructure Platforms \u2014 UK (Intermediate to Senior Staff)",
+      "company": "GitLab",
+      "error_type": "RateLimitError",
+      "error_message": "OpenAI matching call failed for job 'Site Reliability Engineer, Infrastructure Platforms \u2014 UK (Intermediate to Senior Staff)' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 196473, Requested 3570. Please try again in 12ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}",
+      "attempts": 4
+    },
+    {
+      "id": "8775136002",
+      "title": "Staff Backend Engineer, India",
+      "company": "GitLab",
+      "error_type": "RateLimitError",
+      "error_message": "OpenAI matching call failed for job 'Staff Backend Engineer, India' at 'GitLab' after 4 attempts: Error code: 429 - {'error': {'message': 'Rate limit reached for gpt-4.1-mini in organization org-ueG7w6I22bHFkKp4tOZE8NXi on tokens per min (TPM): Limit 200000, Used 197519, Requested 3469. Please try again in 296ms. Visit https://platform.openai.com/account/rate-limits to learn more.', 'type': 'tokens', 'param': None, 'code': 'rate_limit_exceeded'}}",
+      "attempts": 4
+    }
+  ]
+}
