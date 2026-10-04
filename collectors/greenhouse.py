@@ -95,6 +95,7 @@ class GreenhouseCollector(BaseCollector):
                 f"'{self.board_token}': expected a 'jobs' list."
             )
         return jobs
+    
 
     def _to_job(self, raw_job: dict) -> Job:
         # Required fields. Missing any of these means the record is unusable;
