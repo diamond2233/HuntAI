@@ -6,21 +6,51 @@ an LLM. For each remaining Job, exactly one OpenAI call evaluates how well it
 fits the user's profile -- skill relevance, experience compatibility, and
 overall fit -- and returns a structured JobMatch. Pydantic validates the
 model's output before it can enter the pipeline state.
+
+Jobs are matched concurrently with a thread pool (OpenAI calls are I/O-bound,
+so threads -- not processes -- are enough to overlap them). Temporary errors
+(rate limits, timeouts, connection errors, 5xx) are retried with exponential
+backoff; a job that still fails after retries is skipped rather than failing
+the whole run.
 """
 
+import logging
 import os
+import time
+from concurrent.futures import ThreadPoolExecutor
 
 from dotenv import load_dotenv
-from openai import OpenAI, OpenAIError
+from openai import (
+    APIConnectionError,
+    APITimeoutError,
+    InternalServerError,
+    OpenAI,
+    OpenAIError,
+    RateLimitError,
+)
 from pydantic import BaseModel, Field, ValidationError
 
 from models.job import Job, JobMatch
 
 load_dotenv()
 
+logger = logging.getLogger(__name__)
+
 # Job descriptions can be very long; this keeps a single request from
 # blowing up in size. No summarization -- just a hard character cutoff.
 MAX_DESCRIPTION_CHARS = 12000
+
+# How many jobs to match at once. OpenAI calls spend almost all their time
+# waiting on the network, so a modest number of threads is enough to
+# overlap many calls without needing multiprocessing.
+DEFAULT_MAX_WORKERS = 8
+
+# Errors worth retrying -- ones likely to go away on their own if we wait and
+# try again. Anything else (bad request, auth failure, refusal, invalid
+# structured output, ...) is not retried, since trying again won't help.
+RETRYABLE_ERRORS = (RateLimitError, APITimeoutError, InternalServerError, APIConnectionError)
+MAX_RETRY_ATTEMPTS = 3
+RETRY_BACKOFF_SECONDS = 1.0
 
 SYSTEM_PROMPT = """You are a job-profile matching evaluator for a job search assistant.
 
@@ -109,23 +139,50 @@ def _build_user_message(job: Job, profile: dict) -> str:
     )
 
 
-def _match_job(client: OpenAI, model: str, job: Job, profile: dict) -> JobMatch:
+def _call_with_retries(client: OpenAI, model: str, job: Job, profile: dict):
+    """Call the OpenAI API, retrying temporary errors with exponential backoff.
+
+    Tries once, then retries up to MAX_RETRY_ATTEMPTS more times (so up to
+    MAX_RETRY_ATTEMPTS + 1 attempts total) -- but only for RETRYABLE_ERRORS.
+    Any other error is raised immediately, since retrying it wouldn't help.
+    """
     user_message = _build_user_message(job, profile)
 
-    try:
-        completion = client.chat.completions.parse(
-            model=model,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_message},
-            ],
-            response_format=_MatchResult,
-        )
-    except (OpenAIError, ValidationError) as exc:
-        raise RuntimeError(
-            f"OpenAI matching call failed for job '{job.title}' at '{job.company}': {exc}"
-        ) from exc
+    for retry_number in range(MAX_RETRY_ATTEMPTS + 1):
+        try:
+            return client.chat.completions.parse(
+                model=model,
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": user_message},
+                ],
+                response_format=_MatchResult,
+            )
+        except RETRYABLE_ERRORS as exc:
+            if retry_number == MAX_RETRY_ATTEMPTS:
+                raise RuntimeError(
+                    f"OpenAI matching call failed for job '{job.title}' at "
+                    f"'{job.company}' after {retry_number + 1} attempts: {exc}"
+                ) from exc
+            backoff_seconds = RETRY_BACKOFF_SECONDS * (2**retry_number)
+            logger.warning(
+                "OpenAI call failed for job '%s' at '%s' (attempt %d/%d, %s) -- retrying in %.1fs.",
+                job.title,
+                job.company,
+                retry_number + 1,
+                MAX_RETRY_ATTEMPTS + 1,
+                type(exc).__name__,
+                backoff_seconds,
+            )
+            time.sleep(backoff_seconds)
+        except (OpenAIError, ValidationError) as exc:
+            raise RuntimeError(
+                f"OpenAI matching call failed for job '{job.title}' at '{job.company}': {exc}"
+            ) from exc
 
+
+def _match_job(client: OpenAI, model: str, job: Job, profile: dict) -> JobMatch:
+    completion = _call_with_retries(client, model, job, profile)
     message = completion.choices[0].message
 
     if message.refusal:
@@ -148,9 +205,25 @@ def _match_job(client: OpenAI, model: str, job: Job, profile: dict) -> JobMatch:
     )
 
 
-def match_jobs(jobs: list[Job], profile: dict) -> list[JobMatch]:
-    """Evaluate each job against the profile with one OpenAI call per job."""
+def match_jobs(
+    jobs: list[Job],
+    profile: dict,
+    max_workers: int = DEFAULT_MAX_WORKERS,
+    stats: dict | None = None,
+) -> list[JobMatch]:
+    """Evaluate each job against the profile, one OpenAI call per job.
+
+    Jobs are matched concurrently (up to max_workers at once), but the
+    returned list is always in the same order as the input `jobs`, no
+    matter which call finishes first.
+
+    A job that still fails after retries is logged and skipped instead of
+    aborting the whole run. Pass a `stats` dict to find out how many jobs
+    were skipped: stats["skipped_jobs"].
+    """
     if not jobs:
+        if stats is not None:
+            stats["skipped_jobs"] = 0
         return []
 
     model = os.getenv("OPENAI_MODEL")
@@ -158,4 +231,28 @@ def match_jobs(jobs: list[Job], profile: dict) -> list[JobMatch]:
         raise RuntimeError("OPENAI_MODEL is not set. Add it to .env before running the matcher.")
 
     client = OpenAI()
-    return [_match_job(client, model, job, profile) for job in jobs]
+    results: list[JobMatch | None] = [None] * len(jobs)
+    skipped_jobs = 0
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_to_index = {
+            executor.submit(_match_job, client, model, job, profile): index
+            for index, job in enumerate(jobs)
+        }
+        for future, index in future_to_index.items():
+            job = jobs[index]
+            try:
+                results[index] = future.result()
+            except RuntimeError as exc:
+                skipped_jobs += 1
+                logger.error(
+                    "Skipping job '%s' at '%s' -- failed after retries: %s",
+                    job.title,
+                    job.company,
+                    exc,
+                )
+
+    if stats is not None:
+        stats["skipped_jobs"] = skipped_jobs
+
+    return [match for match in results if match is not None]
