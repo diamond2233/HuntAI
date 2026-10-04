@@ -208,6 +208,59 @@ run, same 60 jobs, just matched twice) isolates the one thing that changed
 how many, network conditions). That's what makes "107.3s vs 15.9s" a fair
 comparison instead of two numbers from two different situations.
 
+## H1d: Why a skipped job should never be silent
+
+Failure isolation (Change 3, above) means one bad job doesn't ruin the
+whole batch -- that's good. But it has a sharp edge: if you never find out
+*which* jobs got skipped and *why*, "resilient" quietly turns into
+"lossy". A real run once matched 250 jobs and only 234 came back -- 16
+jobs (6.4%) just weren't there, and nothing in the output said so. That's
+the exact failure mode a silent `except` is supposed to avoid elsewhere in
+this codebase (see how Greenhouse/Lever collectors always raise instead of
+returning an empty list on failure) -- matching shouldn't be the one place
+that quietly loses data.
+
+So every skip now has to say three things: which job, what kind of error,
+and how many times it was tried before giving up. That's what
+`MatchFailure` carries, and it's why `match_jobs()` always writes
+`output/skipped.json` -- even when nothing was skipped (an empty
+`skipped_details: []` is a real answer; a missing file is not).
+
+**How to read `output/skipped.json`:**
+
+```json
+{
+  "skipped_jobs": 10,
+  "skipped_details": [
+    {
+      "id": "8147071",
+      "title": "Staff Software Engineer, Identity Administration",
+      "company": "Okta",
+      "error_type": "RateLimitError",
+      "error_message": "... after 4 attempts: Error code: 429 ...",
+      "attempts": 4
+    }
+  ]
+}
+```
+
+- `skipped_jobs` is the count -- check this first; 0 means nothing to
+  investigate.
+- Each entry in `skipped_details` is one job that never got a match:
+  `id`/`title`/`company` tell you exactly which real job posting was
+  lost, `error_type` is the underlying error's class name (`RateLimitError`,
+  `Refusal`, `NoStructuredResult`, ...), `attempts` is how many times it
+  was tried (1 means it wasn't retried at all -- the error wasn't one of
+  the retryable kinds; 4 means it used up every retry and still failed),
+  and `error_message` has the full original error text, including things
+  like the exact rate-limit numbers OpenAI reported.
+- If you see the same `error_type` across many jobs, that's a pattern
+  worth investigating (see the H1d diagnostic in
+  `results/step2_skip_cause.json` for a real example: 10/165 jobs,
+  100% `RateLimitError`, 100% at 4/4 attempts -- pointing at the retry
+  backoff not being long enough for this batch's token volume, not at
+  anything wrong with those specific jobs).
+
 ## Quick check: 3 questions
 
 1. If OpenAI returns a "rate limit exceeded" error for one job, roughly how
