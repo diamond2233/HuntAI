@@ -1,0 +1,48 @@
+{
+  "jobs_collected_per_source": {
+    "greenhouse": 2002,
+    "lever": 237
+  },
+  "jobs_collected_total": 2239,
+  "jobs_after_filter": 165,
+  "filter_rejections": {
+    "role": 1486,
+    "location": 588
+  },
+  "max_jobs_used_for_matching": 60,
+  "openai_model": "gpt-4.1-mini",
+  "by_workers": {
+    "1": {
+      "runs": 3,
+      "jobs_matched": 60,
+      "median_match_seconds": 107.316,
+      "median_openai_calls": 60,
+      "median_skipped_jobs": 0,
+      "median_prompt_tokens": 120590,
+      "median_completion_tokens": 9980,
+      "median_total_tokens": 130570,
+      "median_estimated_cost_usd": 0.064204,
+      "all_run_seconds": [
+        108.884,
+        102.077,
+        107.316
+      ]
+    },
+    "8": {
+      "runs": 3,
+      "jobs_matched": 60,
+      "median_match_seconds": 15.904,
+      "median_openai_calls": 60,
+      "median_skipped_jobs": 0,
+      "median_prompt_tokens": 120590,
+      "median_completion_tokens": 10101,
+      "median_total_tokens": 130691,
+      "median_estimated_cost_usd": 0.064398,
+      "all_run_seconds": [
+        15.904,
+        14.26,
+        31.056
+      ]
+    }
+  }
+}
