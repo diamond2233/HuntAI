@@ -54,6 +54,22 @@ sources:
         company: Razorpay
       - token: groww
         company: Groww
+      # Added via scripts/check_boards.py -- verified public boards with
+      # at least 3 engineering jobs explicitly located in India (not just
+      # "Remote", which for a global company usually means Remote-US/etc,
+      # not India). See results/check_boards_output.txt for the full probe.
+      - token: databricks
+        company: Databricks
+      - token: okta
+        company: Okta
+      - token: twilio
+        company: Twilio
+      - token: coinbase
+        company: Coinbase
+      - token: gitlab
+        company: GitLab
+      - token: airbnb
+        company: Airbnb
 
   lever:
     enabled: true
