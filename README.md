@@ -1,7 +1,7 @@
 # HuntAI
 
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
-![Tests](https://img.shields.io/badge/tests-167%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-185%20passing-brightgreen)
 ![Pipeline](https://img.shields.io/badge/pipeline-collect%20%E2%86%92%20filter%20%E2%86%92%20dedup%20%E2%86%92%20match%20%E2%86%92%20rank%20%E2%86%92%20export-informational)
 
 HuntAI is a terminal-based, configuration-driven job discovery system. It
@@ -75,18 +75,30 @@ Each source is independently enabled/disabled in `config/profile.yaml` under
 ## Limitations
 
 - Sources: public Greenhouse and Lever boards only.
+- Match scores are LLM judgments and have not been validated against
+  human labels.
+- LLM output is not perfectly deterministic even at temperature 0 (see
+  `docs/H1_EXPLAINED.md`'s H1i section).
+- The seniority filter is title-based, so it can miss senior roles with
+  plain titles and can wrongly drop some good ones.
 
 ## Results
 
 Real numbers from actual runs, saved under `results/`.
 
-**Filter funnel** (`results/h1b_benchmark.json`) — of all jobs collected
-from the configured Greenhouse/Lever boards, how many survive deterministic
-filtering:
+**Filter funnel** (`results/final_run.json`, full uncapped run) — of all
+jobs collected from the configured Greenhouse/Lever boards, how many
+survive each deterministic filter, in the order they're applied:
 
-| Jobs collected | Rejected by role | Rejected by location | Jobs kept |
-|---|---|---|---|
-| 2239 | 1486 | 588 | 165 |
+| Jobs collected | Rejected: company | Rejected: role | Rejected: seniority | Rejected: location | Jobs kept |
+|---|---|---|---|---|---|
+| 2234 | 0 | 1484 | 644 | 93 | 13 |
+
+**Same full run — matching stage** (`results/final_run.json`):
+
+| OpenAI calls | Skipped | Dropped matched skills | Dropped missing skills | Tokens | Cost | Total seconds |
+|---|---|---|---|---|---|---|
+| 13 | 0 | 1 | 0 | 35406 | $0.017156 | 39.355 |
 
 **Matching all 165 filtered jobs at 1 / 4 / 8 workers** (`results/h1e_ratelimit.json`,
 one run each, after the rate-limit fix):
@@ -114,8 +126,11 @@ HuntAI/
 ├── models/job.py          # Job and JobMatch Pydantic models
 ├── collectors/            # Greenhouse, Lever, and Apify collectors (BaseCollector interface)
 ├── pipeline/               # LangGraph state, graph, filters, dedup, matcher, ranker
-├── exporters/              # Markdown/CSV/JSON export
-├── tests/                  # pytest suite (167 tests, all mocked — no real network/LLM calls)
+├── exporters/              # Markdown/CSV/JSON/skipped-jobs-report export
+├── scripts/                # benchmark.py (real-run benchmarking), check_boards.py (find new boards)
+├── docs/H1_EXPLAINED.md    # plain-language changelog of the H1 reliability/quality work, with a TOC
+├── results/                # saved output of real benchmark runs (jobs counts, tokens, cost, timings)
+├── tests/                  # pytest suite (185 tests, all mocked — no real network/LLM calls)
 ├── output/                 # generated export files (gitignored)
 ├── main.py                 # entry point: loads profile, runs the graph
 ├── requirements.txt
