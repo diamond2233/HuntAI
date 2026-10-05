@@ -38,6 +38,13 @@ skills:
   - MCP
   - Golang
   - Operating Systems
+  - Networking
+  - LangChain
+  - LangGraph
+  - Prompt Engineering
+  - LLMs
+  - FastAPI
+  - Pydantic
 
 excluded_companies:
   - TCS
