@@ -384,6 +384,55 @@ exclude_title_words:
 - Set it to your own list to replace the default entirely (it doesn't
   merge with the default -- whatever you list is the whole rule).
 
+## H1i: Why the same job can still get a different score, and why we don't just trust the prompt
+
+A real comparison found two problems: the same job scored differently
+between two runs (one changed by 5 points, and its skill lists changed
+too), and `matched_skills` sometimes contained things that weren't
+actually in the profile at all (like "Ruby" or "PostgreSQL"), while
+`missing_skills` sometimes listed skills the candidate *already has* as
+if they were gaps. This section covers both.
+
+**What temperature is:** when the model generates its answer, it's
+picking each next word from a probability distribution, not just always
+picking the single most likely one. Temperature controls how much it's
+allowed to gamble on a less-likely word instead of the top one. Higher
+temperature means more variety (and more randomness); `temperature=0`
+asks it to always lean toward the most likely choice -- the most
+deterministic setting available.
+
+**Why a prompt rule is not a guarantee:** `temperature=0` makes the model
+*more* consistent, but OpenAI's own documentation says reproducibility
+isn't guaranteed even then, and isn't guaranteed even if you add their
+`seed` parameter on top of it. The reasons are on their end, not ours --
+things like how requests get batched together on their servers, or small
+model/infrastructure updates that happen without changing the model's
+name. We measured the real effect (`results/h1i_reproducibility.json`):
+before `temperature=0`, 5 of 13 jobs changed score between two runs;
+after, only 1 of 13 did. Much better, not perfect -- exactly what the
+documentation said to expect. The same logic applies to the prompt rule
+about
+`matched_skills`/`missing_skills`: telling the model "only use real
+profile skills" makes it *more* likely to follow that rule, but a
+sentence in a prompt is a request, not an enforcement mechanism -- the
+model can still get it wrong sometimes (and in our measurement, it did:
+`dropped_matched_skills` was 1 in every run we checked).
+
+**Why we check the model's output in code:** since the prompt can't
+*guarantee* the model follows it, the only way to actually guarantee
+`matched_skills` never contains an invented skill is to check it
+ourselves after the fact, in code we control -- not ask the model more
+firmly. `_filter_skills_against_profile()` does exactly that: it throws
+away any `matched_skills` entry that isn't literally in the profile's
+skill list, and any `missing_skills` entry that is. This is deliberately
+simple (exact, case-insensitive, trimmed string comparison -- no fuzzy
+matching, no second LLM call to judge "is this close enough"), because
+the whole point is to have one part of the pipeline that's fast,
+free, and 100% reliable instead of just "probably right." Every time it
+removes something, it counts it (`dropped_matched_skills`,
+`dropped_missing_skills`), so if the model is getting this wrong a lot,
+that shows up as a number instead of staying invisible.
+
 ## Quick check: 3 questions
 
 1. If OpenAI returns a "rate limit exceeded" error for one job, roughly how
