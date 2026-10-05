@@ -343,6 +343,47 @@ printed table shows seconds, jobs skipped, and 429 count side by side for
 both worker counts -- on your own jobs, your own account's rate limit,
 right now.
 
+## H1h: Filtering seniority by rule, not by the LLM
+
+A real run showed about 9 in 10 matched jobs had "Senior"/"Staff"/
+"Principal"/"Lead" in the title -- for a profile with 0-2 years of
+experience, none of those are actually reachable, so every one of them was
+a wasted OpenAI call: real money and real time spent asking the LLM to
+judge a job that was never going to be a fit, for a reason that had
+nothing to do with skills or description -- just the word in the title.
+
+**Why a rule, not the LLM:** the whole point of the filtering stage
+(`pipeline/filters.py`) is to catch things that are *obvious from the text
+alone*, before paying for an LLM call. "Does this title contain the word
+'Senior'?" doesn't need judgment -- it's the same kind of check as the
+existing role and location filters, and belongs in the same place for the
+same reason: a job needing 3 skills the candidate has versus 10 they don't
+needs the LLM's judgment, but "this title literally says Staff" doesn't.
+Sending it to the LLM anyway wouldn't produce a better answer, just a
+slower and more expensive one. Real numbers from one run: 162 jobs would
+have reached the matcher without this rule; with it, only 13 did -- 149
+fewer OpenAI calls, saving about $0.18.
+
+**How to change `exclude_title_words` for your own experience level:** it's
+a key in `config/profile.yaml`, right alongside `roles` and `locations`:
+
+```yaml
+# Add this to config/profile.yaml to override the default seniority filter.
+exclude_title_words:
+  - principal
+  - distinguished
+  # "senior"/"staff"/"lead" etc. removed -- now reachable with more experience
+```
+
+- Leave the key out entirely to keep the default (`senior`, `sr`, `staff`,
+  `principal`, `lead`, `architect`, `distinguished`, `iii`, `iv`, `l5`,
+  `l6`, `l7`).
+- Set it to an empty list (`exclude_title_words: []`) to turn the rule off
+  completely -- every title is allowed through regardless of seniority
+  wording.
+- Set it to your own list to replace the default entirely (it doesn't
+  merge with the default -- whatever you list is the whole rule).
+
 ## Quick check: 3 questions
 
 1. If OpenAI returns a "rate limit exceeded" error for one job, roughly how
