@@ -76,6 +76,36 @@ Each source is independently enabled/disabled in `config/profile.yaml` under
 
 - Sources: public Greenhouse and Lever boards only.
 
+## Results
+
+Real numbers from actual runs, saved under `results/`.
+
+**Filter funnel** (`results/h1b_benchmark.json`) — of all jobs collected
+from the configured Greenhouse/Lever boards, how many survive deterministic
+filtering:
+
+| Jobs collected | Rejected by role | Rejected by location | Jobs kept |
+|---|---|---|---|
+| 2239 | 1486 | 588 | 165 |
+
+**Matching all 165 filtered jobs at 1 / 4 / 8 workers** (`results/h1e_ratelimit.json`,
+one run each, after the rate-limit fix):
+
+| Workers | Seconds | Matched | Skipped | 429s | Tokens | Cost |
+|---|---|---|---|---|---|---|
+| 1 | 298.053 | 165 | 0 | 0 | 400613 | $0.195253 |
+| 4 | 78.076 | 165 | 0 | 0 | 400667 | $0.195339 |
+| 8 | 66.73 | 164 | 1 | 51 | 397307 | $0.193638 |
+
+**60-job benchmark, 1 vs 8 workers, median of 3 runs** (`results/h1b_benchmark.json`):
+
+| Workers | Seconds | Matched | Skipped | Tokens | Cost |
+|---|---|---|---|---|---|
+| 1 | 107.316 | 60 | 0 | 130570 | $0.064204 |
+| 8 | 15.904 | 60 | 0 | 130691 | $0.064398 |
+
+Beyond about 4 workers, OpenAI rate limits, not thread count, limit the speed.
+
 ## Project structure
 
 ```
