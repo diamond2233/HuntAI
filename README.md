@@ -1,7 +1,7 @@
 # HuntAI
 
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
-![Tests](https://img.shields.io/badge/tests-126%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-167%20passing-brightgreen)
 ![Pipeline](https://img.shields.io/badge/pipeline-collect%20%E2%86%92%20filter%20%E2%86%92%20dedup%20%E2%86%92%20match%20%E2%86%92%20rank%20%E2%86%92%20export-informational)
 
 HuntAI is a terminal-based, configuration-driven job discovery system. It
@@ -115,7 +115,7 @@ HuntAI/
 ├── collectors/            # Greenhouse, Lever, and Apify collectors (BaseCollector interface)
 ├── pipeline/               # LangGraph state, graph, filters, dedup, matcher, ranker
 ├── exporters/              # Markdown/CSV/JSON export
-├── tests/                  # pytest suite (126 tests, all mocked — no real network/LLM calls)
+├── tests/                  # pytest suite (167 tests, all mocked — no real network/LLM calls)
 ├── output/                 # generated export files (gitignored)
 ├── main.py                 # entry point: loads profile, runs the graph
 ├── requirements.txt
