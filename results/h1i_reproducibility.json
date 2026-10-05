@@ -1,0 +1,396 @@
+{
+  "jobs_collected": 2234,
+  "jobs_after_filter": 13,
+  "run1": {
+    "skipped_jobs": 0,
+    "dropped_matched_skills": 1,
+    "dropped_missing_skills": 0
+  },
+  "run2": {
+    "skipped_jobs": 0,
+    "dropped_matched_skills": 1,
+    "dropped_missing_skills": 0
+  },
+  "per_job_scores": [
+    {
+      "id": "8155883",
+      "title": "Associate Solutions Engineer, Okta",
+      "company": "Okta",
+      "score_run1": 45.0,
+      "score_run2": 45.0,
+      "differs": false
+    },
+    {
+      "id": "8829029002",
+      "title": "IT Software Engineer, Infrastructure",
+      "company": "Databricks",
+      "score_run1": 50.0,
+      "score_run2": 50.0,
+      "differs": false
+    },
+    {
+      "id": "8722304002",
+      "title": "Intermediate Backend Engineer - Database Change Management",
+      "company": "GitLab",
+      "score_run1": 65.0,
+      "score_run2": 65.0,
+      "differs": false
+    },
+    {
+      "id": "8775507002",
+      "title": "Intermediate Backend Engineer, India",
+      "company": "GitLab",
+      "score_run1": 80.0,
+      "score_run2": 80.0,
+      "differs": false
+    },
+    {
+      "id": "8687026002",
+      "title": "Intermediate Support Engineer",
+      "company": "GitLab",
+      "score_run1": 65.0,
+      "score_run2": 65.0,
+      "differs": false
+    },
+    {
+      "id": "7985187",
+      "title": "Machine Learning Engineer",
+      "company": "Coinbase",
+      "score_run1": 65.0,
+      "score_run2": 65.0,
+      "differs": false
+    },
+    {
+      "id": "8857335002",
+      "title": "Professional Services Engineer - West ",
+      "company": "GitLab",
+      "score_run1": 50.0,
+      "score_run2": 50.0,
+      "differs": false
+    },
+    {
+      "id": "7727730",
+      "title": "ServiceNow Developer SAM",
+      "company": "Okta",
+      "score_run1": 20.0,
+      "score_run2": 20.0,
+      "differs": false
+    },
+    {
+      "id": "8056119",
+      "title": "Software Engineer, Professional Services R&D",
+      "company": "Okta",
+      "score_run1": 60.0,
+      "score_run2": 55.0,
+      "differs": true
+    },
+    {
+      "id": "8165441",
+      "title": "Software Engineer, Security Platform",
+      "company": "Coinbase",
+      "score_run1": 50.0,
+      "score_run2": 50.0,
+      "differs": false
+    },
+    {
+      "id": "6839581",
+      "title": "Solution Engineer",
+      "company": "Okta",
+      "score_run1": 30.0,
+      "score_run2": 30.0,
+      "differs": false
+    },
+    {
+      "id": "8168822",
+      "title": "Solutions Engineer, Okta",
+      "company": "Okta",
+      "score_run1": 30.0,
+      "score_run2": 30.0,
+      "differs": false
+    },
+    {
+      "id": "8195169",
+      "title": "Workday Extend Developer ",
+      "company": "Okta",
+      "score_run1": 30.0,
+      "score_run2": 30.0,
+      "differs": false
+    }
+  ],
+  "jobs_with_differing_scores": 1,
+  "total_common_jobs": 13,
+  "final_top13_run2": [
+    {
+      "rank": 1,
+      "title": "Intermediate Backend Engineer, India",
+      "company": "GitLab",
+      "score": 80.0,
+      "matched_skills": [
+        "Golang",
+        "Generative AI"
+      ],
+      "missing_skills": [
+        "Ruby/Rails",
+        "API design",
+        "Database management",
+        "Testing and debugging",
+        "Performance optimization",
+        "Security best practices",
+        "CI/CD",
+        "Docker",
+        "Kubernetes"
+      ]
+    },
+    {
+      "rank": 2,
+      "title": "Machine Learning Engineer",
+      "company": "Coinbase",
+      "score": 65.0,
+      "matched_skills": [
+        "Python",
+        "Generative AI"
+      ],
+      "missing_skills": [
+        "Machine learning",
+        "LLMs",
+        "Deep learning",
+        "NLP",
+        "Information retrieval",
+        "Statistical modeling"
+      ]
+    },
+    {
+      "rank": 3,
+      "title": "Intermediate Backend Engineer - Database Change Management",
+      "company": "GitLab",
+      "score": 65.0,
+      "matched_skills": [
+        "SQL",
+        "Git",
+        "Operating Systems"
+      ],
+      "missing_skills": [
+        "Ruby on Rails",
+        "PostgreSQL",
+        "Database schema migrations",
+        "Backend features and services design"
+      ]
+    },
+    {
+      "rank": 4,
+      "title": "Intermediate Support Engineer",
+      "company": "GitLab",
+      "score": 65.0,
+      "matched_skills": [
+        "Git",
+        "Operating Systems"
+      ],
+      "missing_skills": [
+        "Linux systems administration",
+        "Ruby",
+        "Bash",
+        "Ruby on Rails",
+        "CI/CD",
+        "Zendesk",
+        "Kubernetes",
+        "Serverless"
+      ]
+    },
+    {
+      "rank": 5,
+      "title": "Software Engineer, Professional Services R&D",
+      "company": "Okta",
+      "score": 55.0,
+      "matched_skills": [
+        "Java",
+        "Python",
+        "Data Structures",
+        "Algorithms"
+      ],
+      "missing_skills": [
+        "React",
+        "Node.js",
+        "C# (.NET)",
+        "cloud platforms (AWS, Azure, GCP)",
+        "CI/CD pipelines"
+      ]
+    },
+    {
+      "rank": 6,
+      "title": "IT Software Engineer, Infrastructure",
+      "company": "Databricks",
+      "score": 50.0,
+      "matched_skills": [
+        "Python",
+        "Git"
+      ],
+      "missing_skills": [
+        "Terraform",
+        "Pulumi",
+        "AWS",
+        "Kubernetes",
+        "Docker",
+        "GitHub Actions",
+        "Observability",
+        "CI/CD"
+      ]
+    },
+    {
+      "rank": 7,
+      "title": "Software Engineer, Security Platform",
+      "company": "Coinbase",
+      "score": 50.0,
+      "matched_skills": [
+        "Java",
+        "Golang",
+        "Generative AI"
+      ],
+      "missing_skills": [
+        "3+ years of experience in software engineering",
+        "System design and coding for production services",
+        "Service oriented architecture",
+        "Security platform engineering experience"
+      ]
+    },
+    {
+      "rank": 8,
+      "title": "Professional Services Engineer - West ",
+      "company": "GitLab",
+      "score": 50.0,
+      "matched_skills": [
+        "Git"
+      ],
+      "missing_skills": [
+        "Terraform",
+        "Ansible",
+        "GitLab Environment Toolkit",
+        "Congregate",
+        "DevOps",
+        "DevSecOps",
+        "CI/CD",
+        "Cloud architecture",
+        "Source code management migration"
+      ]
+    },
+    {
+      "rank": 9,
+      "title": "Associate Solutions Engineer, Okta",
+      "company": "Okta",
+      "score": 45.0,
+      "matched_skills": [
+        "Generative AI",
+        "REST API"
+      ],
+      "missing_skills": [
+        "OAuth 2.0",
+        "OpenID Connect",
+        "SAML",
+        "LDAP",
+        "encryption",
+        "XSS",
+        "CSRF",
+        "token management"
+      ]
+    },
+    {
+      "rank": 10,
+      "title": "Solution Engineer",
+      "company": "Okta",
+      "score": 30.0,
+      "matched_skills": [
+        "Java",
+        "Python"
+      ],
+      "missing_skills": [
+        "pre-sales engineering experience",
+        "Okta implementation",
+        "Auth0 implementation",
+        "IAM / IDaaS knowledge",
+        "partner ecosystem support",
+        "network security protocols (OAuth, OAuth2, SAML, LDAP, OIDC)",
+        "cloud computing environments (AWS, GCP, Azure)"
+      ]
+    },
+    {
+      "rank": 11,
+      "title": "Solutions Engineer, Okta",
+      "company": "Okta",
+      "score": 30.0,
+      "matched_skills": [
+        "REST API"
+      ],
+      "missing_skills": [
+        "IAM",
+        "single sign-on",
+        "multi-factor authentication",
+        "passwordless authentication",
+        "universal directory",
+        "privileged access",
+        "device access",
+        "SDKs",
+        "customer-facing role experience"
+      ]
+    },
+    {
+      "rank": 12,
+      "title": "Workday Extend Developer ",
+      "company": "Okta",
+      "score": 30.0,
+      "matched_skills": [
+        "Generative AI",
+        "RAG",
+        "Git"
+      ],
+      "missing_skills": [
+        "Workday Extend",
+        "Workday certification in Extend",
+        "Workday Integration Frameworks",
+        "Workday Studio",
+        "EIB",
+        "Core Connectors",
+        "Cloud Connect",
+        "Workday Web Services",
+        "Workday REST/SOAP APIs",
+        "RaaS",
+        "Workday Reports",
+        "Calculated Fields",
+        "Business Processes",
+        "Workday HCM architecture",
+        "Workday data model",
+        "AWS cloud services",
+        "API-based integration architectures",
+        "event-driven integration architectures"
+      ]
+    },
+    {
+      "rank": 13,
+      "title": "ServiceNow Developer SAM",
+      "company": "Okta",
+      "score": 20.0,
+      "matched_skills": [
+        "Python",
+        "REST API"
+      ],
+      "missing_skills": [
+        "ServiceNow",
+        "Software Asset Management (SAM)",
+        "Hardware Asset Management (HAM)",
+        "ServiceNow Certified System Administrator (CSA)",
+        "CIS\u2013SAM or CIS\u2013HAM certification",
+        "ITAM business processes",
+        "ServiceNow SAM data model",
+        "CMDB",
+        "CSDM",
+        "Cloud Cost Management/Optimization for AWS and GCP",
+        "ServiceNow scripting",
+        "JavaScript",
+        "GlideRecord",
+        "Flow Designer",
+        "Scheduled Jobs",
+        "ServiceNow Discovery",
+        "JAMF",
+        "Intune"
+      ]
+    }
+  ]
+}
