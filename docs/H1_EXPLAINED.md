@@ -4,6 +4,8 @@ This explains the 3 changes made to `pipeline/matcher.py` on the
 `h1-reliability` branch, in plain language. Read this alongside the real
 numbers in `results/baseline.json` and `results/after_concurrency.json`.
 
+**Table of contents**, in order (revise in this order for the full story): [H1](#change-1-concurrency-run-jobs-in-parallel) — concurrency, retry, and failure isolation in the matching stage · [H1b](#h1b-why-only-5-jobs-survived-the-filter-and-what-we-actually-found) — why almost nothing survived the filter, and the real fix (more boards, then a location-alias bug) · [H1d](#h1d-why-a-skipped-job-should-never-be-silent) — making skipped jobs visible instead of silent · [H1e](#h1e-fixing-the-rate-limit-skips-properly) — real rate-limit handling: server-guided waits, a shared cooldown, a longer retry budget · [H1f](#h1f-why-the-default-is-4-workers-not-8) — why the default worker count is 4, not 8 · [H1h](#h1h-filtering-seniority-by-rule-not-by-the-llm) — filtering seniority (Senior/Staff/...) by rule instead of wasting LLM calls on it · [H1i](#h1i-why-the-same-job-can-still-get-a-different-score-and-why-we-dont-just-trust-the-prompt) — temperature=0 and enforcing trustworthy skill lists in code.
+
 ## Change 1: Concurrency (run jobs in parallel)
 
 **Before:** `match_jobs()` called OpenAI once per job, one job at a time, in
