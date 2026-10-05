@@ -96,12 +96,19 @@ Rules:
   implied.
 - Distinguish skills the job clearly requires from technologies it merely
   mentions in passing.
-- Treat clearly equivalent skills as the same thing (e.g. "Generative AI"
-  and "GenAI"; "Go" and "Golang").
-- matched_skills: profile skills that are genuinely relevant to this job.
-- missing_skills: only meaningful gaps -- profile skills the job clearly
-  needs but that aren't reflected in the job. Do not list every profile
-  skill the description happens not to mention.
+- Treat clearly equivalent skills as the same thing when judging relevance
+  (e.g. "Generative AI" and "GenAI"; "Go" and "Golang") -- but always WRITE
+  the skill using the PROFILE's exact spelling, never the job posting's.
+- matched_skills: a subset of the PROFILE's Skills list, copied EXACTLY as
+  written there (same spelling and casing), containing only the skills
+  genuinely relevant to this job. Every single entry must literally appear
+  in the PROFILE's Skills list. Never invent a skill, rename one, or group
+  several into one entry.
+- missing_skills: skills the JOB clearly requires that are NOT in the
+  PROFILE's Skills list. Never include anything that IS in the PROFILE's
+  Skills list -- a skill the candidate already has can never be "missing".
+  Only meaningful gaps; do not list every skill the job happens not to
+  mention.
 - Evaluate experience compatibility against the candidate's experience
   range. If the job does not clearly state an experience requirement, say so
   in the rationale instead of guessing a number.
@@ -181,6 +188,53 @@ def _build_user_message(job: Job, profile: dict) -> str:
         f"Location: {job.location or 'Not specified'}\n"
         f"Description: {description}"
     )
+
+
+def _filter_skills_against_profile(
+    matched_skills: list[str], missing_skills: list[str], profile_skills: list[str]
+) -> tuple[list[str], list[str], int, int]:
+    """Enforce in code what SYSTEM_PROMPT only asks for: matched_skills can
+    only contain real profile skills, and missing_skills can't contain one.
+
+    The prompt tells the model to follow this rule, but a prompt rule is
+    not a guarantee (see docs/H1_EXPLAINED.md's H1i section) -- this is
+    the actual guarantee. Exact, case-insensitive, trimmed comparison only;
+    no fuzzy matching, so "Go" and "Golang" are treated as different
+    strings here even though the prompt asks the model to judge them as
+    equivalent in meaning.
+
+    Returns (filtered_matched, filtered_missing, dropped_matched_count,
+    dropped_missing_count).
+    """
+    normalized_profile_skills = {skill.strip().lower() for skill in profile_skills}
+
+    filtered_matched = [
+        skill for skill in matched_skills if skill.strip().lower() in normalized_profile_skills
+    ]
+    filtered_missing = [
+        skill for skill in missing_skills if skill.strip().lower() not in normalized_profile_skills
+    ]
+
+    dropped_matched = len(matched_skills) - len(filtered_matched)
+    dropped_missing = len(missing_skills) - len(filtered_missing)
+
+    return filtered_matched, filtered_missing, dropped_matched, dropped_missing
+
+
+class _SkillDropCounter:
+    """Thread-safe running total of skills removed by
+    _filter_skills_against_profile() across every job in one match_jobs()
+    call."""
+
+    def __init__(self):
+        self._lock = threading.Lock()
+        self.dropped_matched_skills = 0
+        self.dropped_missing_skills = 0
+
+    def record(self, dropped_matched: int, dropped_missing: int) -> None:
+        with self._lock:
+            self.dropped_matched_skills += dropped_matched
+            self.dropped_missing_skills += dropped_missing
 
 
 class _RateLimitState:
@@ -343,7 +397,12 @@ def _call_with_retries(
 
 
 def _match_job(
-    client: OpenAI, model: str, job: Job, profile: dict, rate_limit_state: _RateLimitState
+    client: OpenAI,
+    model: str,
+    job: Job,
+    profile: dict,
+    rate_limit_state: _RateLimitState,
+    skill_drop_counter: _SkillDropCounter,
 ) -> JobMatch:
     completion = _call_with_retries(client, model, job, profile, rate_limit_state)
     message = completion.choices[0].message
@@ -363,11 +422,16 @@ def _match_job(
             attempts=1,
         )
 
+    matched_skills, missing_skills, dropped_matched, dropped_missing = _filter_skills_against_profile(
+        result.matched_skills, result.missing_skills, profile.get("skills") or []
+    )
+    skill_drop_counter.record(dropped_matched, dropped_missing)
+
     return JobMatch(
         job=job,
         score=result.score,
-        matched_skills=result.matched_skills,
-        missing_skills=result.missing_skills,
+        matched_skills=matched_skills,
+        missing_skills=missing_skills,
         rationale=result.rationale,
     )
 
@@ -388,9 +452,12 @@ def match_jobs(
     aborting the whole run. Pass a `stats` dict to find out how many jobs
     were skipped (stats["skipped_jobs"]) and exactly why (stats
     ["skipped_details"], one entry per skipped job: id, title, company,
-    error_type, error_message, attempts), plus how much rate limiting
-    actually cost this run (stats["rate_limit_hits"], stats
-    ["rate_limit_wait_seconds"]).
+    error_type, error_message, attempts), how much rate limiting actually
+    cost this run (stats["rate_limit_hits"], stats
+    ["rate_limit_wait_seconds"]), and how many skills the model returned
+    that got dropped for not actually being a profile skill (or vice versa)
+    (stats["dropped_matched_skills"], stats["dropped_missing_skills"]) --
+    see _filter_skills_against_profile().
     """
     if not jobs:
         if stats is not None:
@@ -398,6 +465,8 @@ def match_jobs(
             stats["skipped_details"] = []
             stats["rate_limit_hits"] = 0
             stats["rate_limit_wait_seconds"] = 0.0
+            stats["dropped_matched_skills"] = 0
+            stats["dropped_missing_skills"] = 0
         return []
 
     model = os.getenv("OPENAI_MODEL")
@@ -413,10 +482,13 @@ def match_jobs(
     results: list[JobMatch | None] = [None] * len(jobs)
     skipped_details: list[dict] = []
     rate_limit_state = _RateLimitState()
+    skill_drop_counter = _SkillDropCounter()
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_index = {
-            executor.submit(_match_job, client, model, job, profile, rate_limit_state): index
+            executor.submit(
+                _match_job, client, model, job, profile, rate_limit_state, skill_drop_counter
+            ): index
             for index, job in enumerate(jobs)
         }
         for future, index in future_to_index.items():
@@ -446,5 +518,7 @@ def match_jobs(
         stats["skipped_details"] = skipped_details
         stats["rate_limit_hits"] = rate_limit_state.hits
         stats["rate_limit_wait_seconds"] = round(rate_limit_state.total_wait_seconds, 3)
+        stats["dropped_matched_skills"] = skill_drop_counter.dropped_matched_skills
+        stats["dropped_missing_skills"] = skill_drop_counter.dropped_missing_skills
 
     return [match for match in results if match is not None]

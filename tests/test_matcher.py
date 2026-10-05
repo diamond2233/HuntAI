@@ -21,6 +21,7 @@ from pipeline.matcher import (
     MAX_RATE_LIMIT_RETRY_ATTEMPTS,
     MAX_RETRY_ATTEMPTS,
     RATE_LIMIT_WAIT_CAP_SECONDS,
+    _filter_skills_against_profile,
     _MatchResult,
     _RateLimitState,
     _rate_limit_wait_seconds,
@@ -568,6 +569,125 @@ def test_openai_call_uses_temperature_zero():
 
     assert client.chat.completions.parse.call_args.kwargs["temperature"] == MATCH_TEMPERATURE
     assert MATCH_TEMPERATURE == 0
+
+
+# --- trustworthy skill lists: code-level enforcement, not just a prompt ---
+
+def test_invented_matched_skill_is_dropped():
+    matched, missing, dropped_matched, dropped_missing = _filter_skills_against_profile(
+        matched_skills=["Python", "Ruby"],
+        missing_skills=[],
+        profile_skills=["Python", "SQL"],
+    )
+
+    assert matched == ["Python"]
+    assert dropped_matched == 1
+    assert dropped_missing == 0
+
+
+def test_profile_skill_listed_as_missing_is_dropped():
+    matched, missing, dropped_matched, dropped_missing = _filter_skills_against_profile(
+        matched_skills=[],
+        missing_skills=["Java", "Docker"],
+        profile_skills=["Java", "Python"],
+    )
+
+    assert missing == ["Docker"]
+    assert dropped_missing == 1
+    assert dropped_matched == 0
+
+
+def test_valid_matched_and_missing_skills_are_kept():
+    matched, missing, dropped_matched, dropped_missing = _filter_skills_against_profile(
+        matched_skills=["Python", "SQL"],
+        missing_skills=["Docker"],
+        profile_skills=["Python", "SQL", "Git"],
+    )
+
+    assert matched == ["Python", "SQL"]
+    assert missing == ["Docker"]
+    assert dropped_matched == 0
+    assert dropped_missing == 0
+
+
+def test_case_and_whitespace_differences_are_handled():
+    matched, missing, dropped_matched, dropped_missing = _filter_skills_against_profile(
+        matched_skills=["  python  ", "SQL"],
+        missing_skills=["  PYTHON "],
+        profile_skills=["Python", "SQL"],
+    )
+
+    # Both matched entries count as real profile skills despite case/
+    # whitespace differences, so neither is dropped...
+    assert matched == ["  python  ", "SQL"]
+    assert dropped_matched == 0
+    # ...and "PYTHON" (with different case/whitespace) is still recognized
+    # as the profile skill "Python", so it's dropped from missing_skills.
+    assert missing == []
+    assert dropped_missing == 1
+
+
+def test_exact_comparison_only_no_fuzzy_matching():
+    # "Golang" is not literally "Go" -- no fuzzy/equivalence matching here,
+    # even though the two are conceptually related (that's the prompt's
+    # job to recognize when deciding relevance, not this function's).
+    matched, missing, dropped_matched, dropped_missing = _filter_skills_against_profile(
+        matched_skills=["Golang"],
+        missing_skills=[],
+        profile_skills=["Go"],
+    )
+
+    assert matched == []
+    assert dropped_matched == 1
+
+
+def test_dropped_skill_counts_are_reported_in_stats():
+    result = _MatchResult(
+        score=70,
+        matched_skills=["Python", "Ruby"],
+        missing_skills=["Java", "Docker"],
+        rationale="ok",
+    )
+    client = _mock_client(result)
+    profile = {"roles": [], "skills": ["Python", "Java"]}
+    stats = {}
+
+    with patch("pipeline.matcher.OpenAI", return_value=client):
+        matches = match_jobs([_job()], profile, stats=stats)
+
+    assert matches[0].matched_skills == ["Python"]
+    assert matches[0].missing_skills == ["Docker"]
+    assert stats["dropped_matched_skills"] == 1
+    assert stats["dropped_missing_skills"] == 1
+
+
+def test_dropped_skill_counts_default_to_zero_for_empty_job_list():
+    stats = {}
+    with patch("pipeline.matcher.OpenAI"):
+        match_jobs([], _profile(), stats=stats)
+
+    assert stats["dropped_matched_skills"] == 0
+    assert stats["dropped_missing_skills"] == 0
+
+
+def test_dropped_skill_counts_accumulate_across_multiple_jobs():
+    def fake_parse(*, model, messages, response_format, **kwargs):
+        return _fake_completion(
+            parsed=_MatchResult(
+                score=50, matched_skills=["Python", "Ruby"], missing_skills=[], rationale="ok"
+            )
+        )
+
+    client = MagicMock()
+    client.chat.completions.parse.side_effect = fake_parse
+    profile = {"roles": [], "skills": ["Python"]}
+    jobs = [_job(title="Job A"), _job(title="Job B")]
+    stats = {}
+
+    with patch("pipeline.matcher.OpenAI", return_value=client):
+        match_jobs(jobs, profile, stats=stats)
+
+    assert stats["dropped_matched_skills"] == 2
 
 
 def test_default_max_workers_is_four():
