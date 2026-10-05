@@ -77,6 +77,13 @@ RATE_LIMIT_FALLBACK_BACKOFF_SECONDS = 1.0
 # rate-limit error message includes, e.g. "Please try again in 245ms."
 RATE_LIMIT_MESSAGE_PATTERN = re.compile(r"try again in\s+([\d.]+)\s*(ms|s)\b", re.IGNORECASE)
 
+# 0 asks the model for its most deterministic sampling. This meaningfully
+# reduces (but does not eliminate) run-to-run drift in scores and skill
+# lists -- OpenAI documents that reproducibility is "not guaranteed" even
+# at temperature=0 or with a fixed seed, due to backend non-determinism
+# outside this code's control. See docs/H1_EXPLAINED.md's H1i section.
+MATCH_TEMPERATURE = 0
+
 SYSTEM_PROMPT = """You are a job-profile matching evaluator for a job search assistant.
 
 You will be given a candidate PROFILE (target roles, years of experience,
@@ -282,6 +289,7 @@ def _call_with_retries(
                     {"role": "user", "content": user_message},
                 ],
                 response_format=_MatchResult,
+                temperature=MATCH_TEMPERATURE,
             )
         except RateLimitError as exc:
             attempts = 1 + rate_limit_retries + other_retries

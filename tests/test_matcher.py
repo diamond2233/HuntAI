@@ -16,6 +16,7 @@ from pydantic import ValidationError
 from models.job import Job
 from pipeline.matcher import (
     DEFAULT_MAX_WORKERS,
+    MATCH_TEMPERATURE,
     MAX_DESCRIPTION_CHARS,
     MAX_RATE_LIMIT_RETRY_ATTEMPTS,
     MAX_RETRY_ATTEMPTS,
@@ -277,7 +278,7 @@ def test_skipped_details_records_missing_structured_result_as_its_own_error_type
 
 
 def test_multiple_skipped_jobs_each_get_their_own_detail_entry():
-    def fake_parse(*, model, messages, response_format):
+    def fake_parse(*, model, messages, response_format, **kwargs):
         raise OpenAIError("boom")
 
     client = MagicMock()
@@ -493,7 +494,7 @@ def test_job_still_failing_after_all_retries_is_skipped_and_counted():
 def test_one_failing_job_does_not_block_the_others():
     good_result = _MatchResult(score=80, rationale="Fine.")
 
-    def fake_parse(*, model, messages, response_format):
+    def fake_parse(*, model, messages, response_format, **kwargs):
         user_message = messages[1]["content"]
         if "Bad Job" in user_message:
             raise _timeout_error()
@@ -526,7 +527,7 @@ def test_empty_job_list_sets_zero_skipped_in_stats():
 
 
 def test_results_keep_input_order_regardless_of_which_call_finishes_first():
-    def fake_parse(*, model, messages, response_format):
+    def fake_parse(*, model, messages, response_format, **kwargs):
         user_message = messages[1]["content"]
         if "Slow Job" in user_message:
             time.sleep(0.05)
@@ -556,6 +557,17 @@ def test_client_is_created_with_sdk_retries_disabled():
         match_jobs([_job()], _profile())
 
     MockOpenAI.assert_called_once_with(max_retries=0)
+
+
+def test_openai_call_uses_temperature_zero():
+    result = _MatchResult(score=60, rationale="Ok.")
+    client = _mock_client(result)
+
+    with patch("pipeline.matcher.OpenAI", return_value=client):
+        match_jobs([_job()], _profile())
+
+    assert client.chat.completions.parse.call_args.kwargs["temperature"] == MATCH_TEMPERATURE
+    assert MATCH_TEMPERATURE == 0
 
 
 def test_default_max_workers_is_four():
