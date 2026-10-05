@@ -1,0 +1,35 @@
+{
+  "jobs_collected_per_source": {
+    "greenhouse": 1997,
+    "lever": 237
+  },
+  "jobs_collected_total": 2234,
+  "jobs_after_filter": 13,
+  "filter_rejections": {
+    "role": 1484,
+    "location": 93,
+    "seniority": 644
+  },
+  "jobs_after_dedup": 13,
+  "openai_calls": 13,
+  "skipped_jobs": 0,
+  "dropped_matched_skills": 1,
+  "dropped_missing_skills": 0,
+  "openai_model": "gpt-4.1-mini",
+  "openai_tokens": {
+    "prompt_tokens": 32911,
+    "completion_tokens": 2495,
+    "total_tokens": 35406
+  },
+  "estimated_cost_usd": 0.017156,
+  "cost_pricing_note": "Priced using gpt-4.1-mini rates ($0.4/1M input, $1.6/1M output tokens), verified at platform.openai.com/docs/pricing on 2026-10-04.",
+  "final_ranked_jobs": 13,
+  "stage_seconds": {
+    "collect": 28.692,
+    "filter": 0.111,
+    "dedup": 0.0,
+    "match": 10.426,
+    "rank": 0.0,
+    "total": 39.355
+  }
+}

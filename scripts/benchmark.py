@@ -390,7 +390,7 @@ def run_benchmark() -> tuple[dict, dict]:
     stage_seconds["dedup"] = time.perf_counter() - start
 
     start = time.perf_counter()
-    matched_jobs, usage_log, _match_stats = _match_with_usage_tracking(deduplicated_jobs, profile)
+    matched_jobs, usage_log, match_stats = _match_with_usage_tracking(deduplicated_jobs, profile)
     stage_seconds["match"] = time.perf_counter() - start
 
     start = time.perf_counter()
@@ -412,6 +412,9 @@ def run_benchmark() -> tuple[dict, dict]:
         "filter_rejections": filter_rejections,
         "jobs_after_dedup": len(deduplicated_jobs),
         "openai_calls": len(usage_log),
+        "skipped_jobs": match_stats.get("skipped_jobs", 0),
+        "dropped_matched_skills": match_stats.get("dropped_matched_skills", 0),
+        "dropped_missing_skills": match_stats.get("dropped_missing_skills", 0),
         "openai_model": model,
         "openai_tokens": {
             "prompt_tokens": prompt_tokens,
