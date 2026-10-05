@@ -1,0 +1,87 @@
+{
+  "jobs_collected": 2233,
+  "before": {
+    "jobs_after_filter": 162,
+    "openai_calls": 162,
+    "openai_calls_actual": 162,
+    "skipped_jobs": 0,
+    "prompt_tokens": 366072,
+    "completion_tokens": 29238,
+    "estimated_cost_usd": 0.19321
+  },
+  "after": {
+    "jobs_after_filter": 13,
+    "openai_calls": 13,
+    "skipped_jobs": 0,
+    "prompt_tokens": 31208,
+    "completion_tokens": 2386,
+    "estimated_cost_usd": 0.016301
+  },
+  "matched_after_scores": [
+    {
+      "title": "IT Software Engineer, Infrastructure",
+      "company": "Databricks",
+      "score": 55.0
+    },
+    {
+      "title": "Associate Solutions Engineer, Okta",
+      "company": "Okta",
+      "score": 50.0
+    },
+    {
+      "title": "ServiceNow Developer SAM",
+      "company": "Okta",
+      "score": 30.0
+    },
+    {
+      "title": "Software Engineer, Professional Services R&D",
+      "company": "Okta",
+      "score": 55.0
+    },
+    {
+      "title": "Solution Engineer",
+      "company": "Okta",
+      "score": 40.0
+    },
+    {
+      "title": "Solutions Engineer, Okta",
+      "company": "Okta",
+      "score": 30.0
+    },
+    {
+      "title": "Workday Extend Developer ",
+      "company": "Okta",
+      "score": 35.0
+    },
+    {
+      "title": "Machine Learning Engineer",
+      "company": "Coinbase",
+      "score": 65.0
+    },
+    {
+      "title": "Software Engineer, Security Platform",
+      "company": "Coinbase",
+      "score": 45.0
+    },
+    {
+      "title": "Intermediate Backend Engineer - Database Change Management",
+      "company": "GitLab",
+      "score": 65.0
+    },
+    {
+      "title": "Intermediate Backend Engineer, India",
+      "company": "GitLab",
+      "score": 80.0
+    },
+    {
+      "title": "Intermediate Support Engineer",
+      "company": "GitLab",
+      "score": 65.0
+    },
+    {
+      "title": "Professional Services Engineer - West ",
+      "company": "GitLab",
+      "score": 40.0
+    }
+  ]
+}
