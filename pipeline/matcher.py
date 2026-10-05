@@ -51,8 +51,13 @@ MAX_DESCRIPTION_CHARS = 12000
 
 # How many jobs to match at once. OpenAI calls spend almost all their time
 # waiting on the network, so a modest number of threads is enough to
-# overlap many calls without needing multiprocessing.
-DEFAULT_MAX_WORKERS = 8
+# overlap many calls without needing multiprocessing. 4 is chosen over a
+# higher number because real data (results/h1e_ratelimit.json) showed 8
+# workers hit the account's rate limit 51 times and still lost a job, while
+# 4 workers finished the same 165 jobs with zero rate-limit hits and only
+# ~15% slower -- past this point, OpenAI's per-minute token cap is the
+# bottleneck, not thread count, so more workers stops paying off.
+DEFAULT_MAX_WORKERS = 4
 
 # Timeouts, connection errors, and 5xx: unchanged from before -- a fixed
 # exponential backoff, since there's no server-provided wait time to use

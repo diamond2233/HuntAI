@@ -17,9 +17,10 @@ If you had 50 jobs and each OpenAI call took 3 seconds, that's 150 seconds,
 back to back.
 
 **Now:** `match_jobs()` hands all the jobs to a `ThreadPoolExecutor`, which
-runs up to 8 of them (configurable) *at the same time* on separate threads.
-It still returns one `JobMatch` per job, in the exact same order as the
-input list -- it just doesn't wait for job 1 to finish before starting job 2.
+runs up to 4 of them (configurable; see H1f below for why 4) *at the same
+time* on separate threads. It still returns one `JobMatch` per job, in the
+exact same order as the input list -- it just doesn't wait for job 1 to
+finish before starting job 2.
 
 **Why it's better:** an OpenAI API call spends almost all of its time
 waiting for a response over the network -- the computer isn't actually busy

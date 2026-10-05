@@ -88,7 +88,7 @@ def _collect(profile: dict) -> tuple[list[Job], dict[str, int]]:
 
 
 def _match_with_usage_tracking(
-    jobs: list[Job], profile: dict, max_workers: int = 8
+    jobs: list[Job], profile: dict, max_workers: int = 4
 ) -> tuple[list, list[dict], dict]:
     """Call the real match_jobs() unmodified, recording each call's token usage.
 

@@ -558,8 +558,8 @@ def test_client_is_created_with_sdk_retries_disabled():
     MockOpenAI.assert_called_once_with(max_retries=0)
 
 
-def test_default_max_workers_is_eight():
-    assert DEFAULT_MAX_WORKERS == 8
+def test_default_max_workers_is_four():
+    assert DEFAULT_MAX_WORKERS == 4
 
 
 def test_max_workers_is_configurable():
@@ -575,7 +575,7 @@ def test_max_workers_is_configurable():
     mock_executor.assert_called_once_with(max_workers=3)
 
 
-def test_max_workers_defaults_to_eight_when_not_specified():
+def test_max_workers_defaults_to_four_when_not_specified():
     result = _MatchResult(score=60, rationale="Ok.")
     client = _mock_client(result)
 
@@ -585,4 +585,4 @@ def test_max_workers_defaults_to_eight_when_not_specified():
     ):
         match_jobs([_job()], _profile())
 
-    mock_executor.assert_called_once_with(max_workers=8)
+    mock_executor.assert_called_once_with(max_workers=4)
