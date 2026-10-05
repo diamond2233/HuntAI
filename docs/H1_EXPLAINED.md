@@ -307,6 +307,42 @@ exactly what the real numbers show: 8 workers (66.7s) was barely faster than
 to actually hit the rate limit (51 times!) while 4 workers stayed under it
 entirely and got the same job done with zero 429s.
 
+## H1f: Why the default is 4 workers, not 8
+
+H1e's real numbers settled this: matching the same 165 jobs, 8 workers
+(66.7s) was barely faster than 4 workers (78.1s) -- about 15% -- but 8
+workers hit OpenAI's rate limit 51 times and still lost a job even after
+retrying, while 4 workers hit the rate limit zero times and lost nothing.
+A small speed gain isn't worth trading away reliability for, so `4` is now
+`DEFAULT_MAX_WORKERS` in `pipeline/matcher.py`.
+
+**How to change it and re-test yourself:** it's just a parameter, nothing
+hidden --
+
+```python
+# in pipeline/matcher.py
+DEFAULT_MAX_WORKERS = 4   # try a different number here
+```
+
+or without editing any code, pass it directly when calling the matcher:
+
+```python
+match_jobs(jobs, profile, max_workers=8)
+```
+
+To see the real effect on your own data (not just trust the number above),
+run the same comparison H1e did:
+
+```
+python scripts/benchmark.py my_test.json --workers 4 --runs 1 --max-jobs 165
+python scripts/benchmark.py my_test.json --workers 8 --runs 1 --max-jobs 165
+```
+
+Both save into the same file under `by_workers`, so the second command's
+printed table shows seconds, jobs skipped, and 429 count side by side for
+both worker counts -- on your own jobs, your own account's rate limit,
+right now.
+
 ## Quick check: 3 questions
 
 1. If OpenAI returns a "rate limit exceeded" error for one job, roughly how
