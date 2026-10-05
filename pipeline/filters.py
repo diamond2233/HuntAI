@@ -80,6 +80,28 @@ def matches_role(title: str, roles: list[str]) -> bool:
     return any(_contains_whole_phrase(title, word) for word in GENERIC_TECHNICAL_TITLE_WORDS)
 
 
+# Words that signal a title is above entry/junior level -- used by default
+# when the profile doesn't configure its own exclude_title_words. Checked as
+# whole words, case-insensitive, via the same _contains_whole_phrase() used
+# above, so "Sr." (with the period) still matches "sr", but "Staffing" does
+# not match "staff".
+DEFAULT_EXCLUDE_TITLE_WORDS = [
+    "senior", "sr", "staff", "principal", "lead", "architect",
+    "distinguished", "iii", "iv", "l5", "l6", "l7",
+]
+
+
+def has_excluded_title_word(title: str, exclude_title_words: list[str]) -> bool:
+    """Whether the title contains any of the configured seniority words.
+
+    An empty exclude_title_words list disables this rule entirely (every
+    title passes) -- that's a profile choice (e.g. a candidate with more
+    experience), distinct from a missing config key, which uses
+    DEFAULT_EXCLUDE_TITLE_WORDS instead (see apply_filters()).
+    """
+    return any(_contains_whole_phrase(title, word) for word in exclude_title_words)
+
+
 # Alternate spellings/names real job postings use for a configured location.
 # Only includes pairs with real evidence from scripts/benchmark.py's
 # filter_rejections diagnostics (see docs/H1_EXPLAINED.md) -- "Bengaluru" was
@@ -142,7 +164,7 @@ def matches_location(location: Optional[str], locations: list[str]) -> bool:
 def apply_filters(jobs: list[Job], profile: dict) -> list[Job]:
     """Apply the deterministic filter rules to a list of jobs.
 
-    Filters applied here: excluded company, role/title, location.
+    Filters applied here: excluded company, role/title, seniority, location.
 
     NOT filtered here:
       - Experience: Job has no structured experience field, and reliably
@@ -157,12 +179,18 @@ def apply_filters(jobs: list[Job], profile: dict) -> list[Job]:
     excluded_companies = profile.get("excluded_companies") or []
     roles = profile.get("roles") or []
     locations = profile.get("locations") or []
+    # dict.get's default only applies when the key is missing -- an
+    # explicitly empty list in the profile disables this rule instead of
+    # falling back to the default, which a plain "or" would get wrong.
+    exclude_title_words = profile.get("exclude_title_words", DEFAULT_EXCLUDE_TITLE_WORDS)
 
     filtered_jobs = []
     for job in jobs:
         if is_excluded_company(job.company, excluded_companies):
             continue
         if not matches_role(job.title, roles):
+            continue
+        if has_excluded_title_word(job.title, exclude_title_words):
             continue
         if not matches_location(job.location, locations):
             continue

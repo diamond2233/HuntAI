@@ -5,7 +5,14 @@ dicts.
 """
 
 from models.job import Job
-from pipeline.filters import apply_filters, is_excluded_company, matches_location, matches_role
+from pipeline.filters import (
+    DEFAULT_EXCLUDE_TITLE_WORDS,
+    apply_filters,
+    has_excluded_title_word,
+    is_excluded_company,
+    matches_location,
+    matches_role,
+)
 
 
 def _job(title="Software Engineer", company="Acme", location="Bangalore, India"):
@@ -190,6 +197,84 @@ def test_non_remote_city_configured_is_unaffected_by_remote_rule():
     # must still be rejected -- the Remote-specific rule shouldn't leak into
     # ordinary city matching.
     assert matches_location("San Francisco, California", ["Bangalore", "Remote"]) is False
+
+
+# --- seniority filter (exclude_title_words) ------------------------------------
+
+def test_each_default_excluded_word_is_rejected():
+    for word in DEFAULT_EXCLUDE_TITLE_WORDS:
+        title = f"Backend Engineer - {word}"
+        assert has_excluded_title_word(title, DEFAULT_EXCLUDE_TITLE_WORDS) is True, f"expected {word!r} to be rejected"
+
+
+def test_excluded_word_in_the_middle_of_a_title_is_rejected():
+    assert has_excluded_title_word("Backend Engineer, Staff Level", DEFAULT_EXCLUDE_TITLE_WORDS) is True
+
+
+def test_sr_with_a_period_is_rejected():
+    assert has_excluded_title_word("Sr. Backend Engineer", DEFAULT_EXCLUDE_TITLE_WORDS) is True
+
+
+def test_staffing_is_not_rejected_by_staff():
+    # Word-boundary matching: "staff" must not match inside "Staffing".
+    assert has_excluded_title_word("Staffing Coordinator", DEFAULT_EXCLUDE_TITLE_WORDS) is False
+
+
+def test_intermediate_backend_engineer_is_kept_by_apply_filters():
+    profile = {"roles": [], "locations": [], "excluded_companies": []}
+    job = _job(title="Intermediate Backend Engineer")
+
+    result = apply_filters([job], profile)
+
+    assert len(result) == 1
+
+
+def test_software_engineer_is_kept_by_apply_filters():
+    profile = {"roles": [], "locations": [], "excluded_companies": []}
+    job = _job(title="Software Engineer")
+
+    result = apply_filters([job], profile)
+
+    assert len(result) == 1
+
+
+def test_default_rejects_senior_titles_via_apply_filters():
+    profile = {"roles": [], "locations": [], "excluded_companies": []}
+    jobs = [_job(title="Senior Backend Engineer"), _job(title="Software Engineer")]
+
+    result = apply_filters(jobs, profile)
+
+    assert [job.title for job in result] == ["Software Engineer"]
+
+
+def test_empty_exclude_title_words_disables_the_rule():
+    profile = {
+        "roles": [],
+        "locations": [],
+        "excluded_companies": [],
+        "exclude_title_words": [],
+    }
+    job = _job(title="Senior Backend Engineer")
+
+    result = apply_filters([job], profile)
+
+    assert len(result) == 1
+
+
+def test_custom_exclude_title_words_overrides_the_default():
+    profile = {
+        "roles": [],
+        "locations": [],
+        "excluded_companies": [],
+        "exclude_title_words": ["intern"],
+    }
+    jobs = [_job(title="Senior Backend Engineer"), _job(title="Backend Engineer Intern")]
+
+    result = apply_filters(jobs, profile)
+
+    # "Senior" is no longer excluded (the custom list doesn't include it);
+    # "Intern" now is, even though it's not in the default list at all.
+    assert [job.title for job in result] == ["Senior Backend Engineer"]
 
 
 # --- apply_filters end-to-end --------------------------------------------------

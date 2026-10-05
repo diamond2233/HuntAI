@@ -33,7 +33,14 @@ from collectors.greenhouse import GreenhouseCollector  # noqa: E402
 from collectors.lever import LeverCollector  # noqa: E402
 from models.job import Job  # noqa: E402
 from pipeline.dedup import deduplicate  # noqa: E402
-from pipeline.filters import apply_filters, is_excluded_company, matches_location, matches_role  # noqa: E402
+from pipeline.filters import (  # noqa: E402
+    DEFAULT_EXCLUDE_TITLE_WORDS,
+    apply_filters,
+    has_excluded_title_word,
+    is_excluded_company,
+    matches_location,
+    matches_role,
+)
 from pipeline.matcher import match_jobs  # noqa: E402
 from pipeline.ranker import rank_jobs  # noqa: E402
 
@@ -141,10 +148,11 @@ def _looks_like_a_tech_title(title: str) -> bool:
 def _diagnose_filter_rejections(jobs: list[Job], profile: dict) -> tuple[dict[str, int], dict]:
     """Classify why each job was rejected, using filters.py's own functions.
 
-    Re-applies is_excluded_company/matches_role/matches_location in the same
-    order apply_filters() does, so a job ends up counted under whichever
-    check it actually failed first. This is read-only diagnostics -- it
-    doesn't change what apply_filters() itself does.
+    Re-applies is_excluded_company/matches_role/has_excluded_title_word/
+    matches_location in the same order apply_filters() does, so a job ends
+    up counted under whichever check it actually failed first. This is
+    read-only diagnostics -- it doesn't change what apply_filters() itself
+    does.
 
     Returns (rejections, extra) where rejections is {reason: count} (saved
     to the benchmark JSON) and extra holds the detailed, print-only
@@ -153,10 +161,12 @@ def _diagnose_filter_rejections(jobs: list[Job], profile: dict) -> tuple[dict[st
     excluded_companies = profile.get("excluded_companies") or []
     roles = profile.get("roles") or []
     locations = profile.get("locations") or []
+    exclude_title_words = profile.get("exclude_title_words", DEFAULT_EXCLUDE_TITLE_WORDS)
 
     rejections = Counter()
     rejected_location_strings = Counter()
     rejected_role_titles = Counter()
+    rejected_seniority_titles = Counter()
     tech_looking_titles_rejected_for_role = Counter()
     per_company = {}
 
@@ -176,6 +186,10 @@ def _diagnose_filter_rejections(jobs: list[Job], profile: dict) -> tuple[dict[st
             if _looks_like_a_tech_title(job.title):
                 tech_looking_titles_rejected_for_role[job.title] += 1
             continue
+        if has_excluded_title_word(job.title, exclude_title_words):
+            rejections["seniority"] += 1
+            rejected_seniority_titles[job.title] += 1
+            continue
         if not matches_location(job.location, locations):
             rejections["location"] += 1
             rejected_location_strings[job.location or "(none)"] += 1
@@ -186,6 +200,7 @@ def _diagnose_filter_rejections(jobs: list[Job], profile: dict) -> tuple[dict[st
     extra = {
         "rejected_location_strings": rejected_location_strings,
         "rejected_role_titles": rejected_role_titles,
+        "rejected_seniority_titles": rejected_seniority_titles,
         "tech_looking_titles_rejected_for_role": tech_looking_titles_rejected_for_role,
         "per_company": per_company,
     }
@@ -473,6 +488,11 @@ def main() -> None:
 
     print("\nTop 40 most common rejected-for-role titles:")
     for title, count in diagnostics["rejected_role_titles"].most_common(40):
+        print(f"  {count:>4}  {title}")
+
+    rejected_seniority = diagnostics["rejected_seniority_titles"]
+    print(f"\nRejected-for-seniority titles -- {sum(rejected_seniority.values())} total:")
+    for title, count in rejected_seniority.most_common():
         print(f"  {count:>4}  {title}")
 
     print("\nJobs per company (collected / rejected for role / kept):")
